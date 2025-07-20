@@ -1,0 +1,143 @@
+version: '3.8'
+
+services:
+  # MongoDB Service
+  mongodb:
+    image: mongo:7.0
+    container_name: kingston-fyi-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: kingston-fyi
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: mongodbpassword123
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/01-init.js:ro
+    networks:
+      - kingston-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Zitadel Service
+  zitadel:
+    image: ghcr.io/zitadel/zitadel:latest
+    container_name: kingston-fyi-zitadel
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Database configuration
+      ZITADEL_DATABASE_POSTGRES_HOST: zitadel-db
+      ZITADEL_DATABASE_POSTGRES_PORT: 5432
+      ZITADEL_DATABASE_POSTGRES_DATABASE: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: postgres
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: postgres
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
+      
+      # Zitadel configuration
+      ZITADEL_EXTERNALSECURE: false
+      ZITADEL_EXTERNALPORT: 8080
+      ZITADEL_EXTERNALDOMAIN: localhost
+      ZITADEL_TLS_ENABLED: false
+      
+      # First instance initialization
+      ZITADEL_FIRSTINSTANCE_ORG_NAME: Kingston FYI
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: zitadel-admin@zitadel.localhost
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: RootPassword1!
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: false
+      
+      # Machine key for API access
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME: kingston-fyi-machine
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME: Kingston FYI Machine
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT: kingston-fyi-machine-key
+      
+      # Secrets
+      ZITADEL_MASTERKEY: "MasterkeyNeedsToHave32Characters"
+    depends_on:
+      zitadel-db:
+        condition: service_healthy
+    networks:
+      - kingston-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/debug/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - zitadel_certs:/crdb-certs:ro
+
+  # PostgreSQL for Zitadel
+  zitadel-db:
+    image: postgres:16-alpine
+    container_name: kingston-fyi-zitadel-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: zitadel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - zitadel_postgres_data:/var/lib/postgresql/data
+    networks:
+      - kingston-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: Mongo Express for MongoDB GUI
+  mongo-express:
+    image: mongo-express:latest
+    container_name: kingston-fyi-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: mongodbpassword123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:mongodbpassword123@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - kingston-network
+    profiles:
+      - debug
+
+  # Optional: Mailhog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: kingston-fyi-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+    networks:
+      - kingston-network
+    profiles:
+      - debug
+
+volumes:
+  mongodb_data:
+    name: kingston-fyi-mongodb-data
+  zitadel_postgres_data:
+    name: kingston-fyi-zitadel-postgres-data
+  zitadel_certs:
+    name: kingston-fyi-zitadel-certs
+
+networks:
+  kingston-network:
+    name: kingston-fyi-network
+    driver: bridge
