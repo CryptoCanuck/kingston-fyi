@@ -11,6 +11,7 @@ import {
   Inbox
 } from 'lucide-react';
 import { SubmissionCard } from './SubmissionCard';
+import { ApproveRejectModal } from './ApproveRejectModal';
 
 interface SubmissionData {
   _id: string;
@@ -51,6 +52,9 @@ export default function SubmissionList() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedSubmission, setSelectedSubmission] = useState<SubmissionData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Get filter parameters from URL
   const status = searchParams.get('status') || '';
@@ -92,7 +96,7 @@ export default function SubmissionList() {
     };
 
     fetchSubmissions();
-  }, [status, type, currentPage]);
+  }, [status, type, currentPage, refreshTrigger]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -103,6 +107,21 @@ export default function SubmissionList() {
     setCurrentPage(newPage);
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleViewDetails = (submission: SubmissionData) => {
+    setSelectedSubmission(submission);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedSubmission(null);
+  };
+
+  const handleSuccess = () => {
+    // Refetch submissions to update the list
+    setRefreshTrigger(prev => prev + 1);
   };
 
   if (isLoading) {
@@ -175,12 +194,18 @@ export default function SubmissionList() {
           <SubmissionCard
             key={submission._id}
             submission={submission}
-            onViewDetails={(sub) => {
-              // TODO: Open details modal in next phase
-            }}
+            onViewDetails={handleViewDetails}
           />
         ))}
       </div>
+
+      {/* Approve/Reject Modal */}
+      <ApproveRejectModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        submission={selectedSubmission}
+        onSuccess={handleSuccess}
+      />
 
       {/* Pagination Controls */}
       {pagination.totalPages > 1 && (
