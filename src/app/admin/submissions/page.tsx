@@ -8,9 +8,9 @@ import {
   ArrowLeft,
   Loader2,
   Shield,
-  FileText,
   AlertTriangle
 } from 'lucide-react';
+import SubmissionStats from '@/components/admin/SubmissionStats';
 
 export default function AdminSubmissionsPage() {
   const router = useRouter();
@@ -97,15 +97,7 @@ export default function AdminSubmissionsPage() {
         </div>
 
         {/* Admin Content */}
-        <div className="card p-8">
-          <div className="text-center py-12">
-            <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="heading-3 mb-2">Submissions Dashboard</h2>
-            <p className="text-muted">
-              Submission management functionality will be implemented here
-            </p>
-          </div>
-        </div>
+        <SubmissionStats />
       </div>
     </div>
   );
