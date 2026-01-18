@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "002-admin-dashboard-for-submission-management",
+  "state": "building",
+  "subtasks": {
+    "completed": 6,
+    "total": 7,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Integration and Polish",
+    "id": null,
+    "total": 1
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 8,
+    "started_at": "2026-01-18T04:59:51.854438"
+  },
+  "last_update": "2026-01-18T05:24:42.807322"
+}
