@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Inbox
 } from 'lucide-react';
+import { SubmissionCard } from './SubmissionCard';
 
 interface SubmissionData {
   _id: string;
@@ -169,68 +170,16 @@ export default function SubmissionList() {
       </div>
 
       {/* Submissions Grid */}
-      <div className="grid grid-cols-1 gap-4">
-        {submissions.map((submission) => {
-          const displayName = submission.data.name || submission.data.title || 'Untitled';
-          const statusColors = {
-            pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
-            approved: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
-            rejected: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
-          };
-          const typeColors = {
-            place: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300',
-            event: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300',
-            'real-estate': 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
-          };
-
-          return (
-            <div
-              key={submission._id}
-              className="card p-6 hover:shadow-lg transition-shadow duration-200"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="heading-3 text-lg">{displayName}</h3>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${typeColors[submission.type]}`}>
-                      {submission.type}
-                    </span>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[submission.status]}`}>
-                      {submission.status}
-                    </span>
-                  </div>
-
-                  <p className="text-muted text-sm mb-3 line-clamp-2">
-                    {submission.data.description}
-                  </p>
-
-                  <div className="flex items-center gap-4 text-sm text-muted">
-                    <div>
-                      <span className="font-medium">Submitted by:</span> {submission.submittedBy.name}
-                    </div>
-                    <div>
-                      <span className="font-medium">Email:</span> {submission.submittedBy.email}
-                    </div>
-                    <div>
-                      <span className="font-medium">Date:</span>{' '}
-                      {new Date(submission.submittedAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="ml-4">
-                  <button className="btn-secondary text-sm px-4 py-2">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {submissions.map((submission) => (
+          <SubmissionCard
+            key={submission._id}
+            submission={submission}
+            onViewDetails={(sub) => {
+              // TODO: Open details modal in next phase
+            }}
+          />
+        ))}
       </div>
 
       {/* Pagination Controls */}
