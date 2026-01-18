@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import SubmissionStats from '@/components/admin/SubmissionStats';
 import SubmissionFilters from '@/components/admin/SubmissionFilters';
+import SubmissionList from '@/components/admin/SubmissionList';
 
 export default function AdminSubmissionsPage() {
   const router = useRouter();
@@ -101,6 +102,7 @@ export default function AdminSubmissionsPage() {
         <div className="space-y-6">
           <SubmissionStats />
           <SubmissionFilters />
+          <SubmissionList />
         </div>
       </div>
     </div>
