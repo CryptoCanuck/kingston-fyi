@@ -1,0 +1,39 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(/home/rolox/working/kingston-fyi/.auto-claude/worktrees/tasks/002-admin-dashboard-for-submission-management/**)",
+      "Write(/home/rolox/working/kingston-fyi/.auto-claude/worktrees/tasks/002-admin-dashboard-for-submission-management/**)",
+      "Edit(/home/rolox/working/kingston-fyi/.auto-claude/worktrees/tasks/002-admin-dashboard-for-submission-management/**)",
+      "Glob(/home/rolox/working/kingston-fyi/.auto-claude/worktrees/tasks/002-admin-dashboard-for-submission-management/**)",
+      "Grep(/home/rolox/working/kingston-fyi/.auto-claude/worktrees/tasks/002-admin-dashboard-for-submission-management/**)",
+      "Read(/home/rolox/working/kingston-fyi/.auto-claude/worktrees/tasks/002-admin-dashboard-for-submission-management/.auto-claude/specs/002-admin-dashboard-for-submission-management/**)",
+      "Write(/home/rolox/working/kingston-fyi/.auto-claude/worktrees/tasks/002-admin-dashboard-for-submission-management/.auto-claude/specs/002-admin-dashboard-for-submission-management/**)",
+      "Edit(/home/rolox/working/kingston-fyi/.auto-claude/worktrees/tasks/002-admin-dashboard-for-submission-management/.auto-claude/specs/002-admin-dashboard-for-submission-management/**)",
+      "Read(/home/rolox/working/kingston-fyi/.auto-claude/**)",
+      "Write(/home/rolox/working/kingston-fyi/.auto-claude/**)",
+      "Edit(/home/rolox/working/kingston-fyi/.auto-claude/**)",
+      "Glob(/home/rolox/working/kingston-fyi/.auto-claude/**)",
+      "Grep(/home/rolox/working/kingston-fyi/.auto-claude/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}

@@ -11,6 +11,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import SubmissionStats from '@/components/admin/SubmissionStats';
+import SubmissionFilters from '@/components/admin/SubmissionFilters';
 
 export default function AdminSubmissionsPage() {
   const router = useRouter();
@@ -97,7 +98,10 @@ export default function AdminSubmissionsPage() {
         </div>
 
         {/* Admin Content */}
-        <SubmissionStats />
+        <div className="space-y-6">
+          <SubmissionStats />
+          <SubmissionFilters />
+        </div>
       </div>
     </div>
   );
