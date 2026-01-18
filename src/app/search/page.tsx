@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { MapPin, Calendar, ArrowLeft } from 'lucide-react';
 import { Place, Event } from '@/types/models';
@@ -11,17 +11,11 @@ interface SearchResults {
   events: Event[];
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState<SearchResults>({ places: [], events: [] });
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (query) {
-      fetchResults();
-    }
-  }, [query, fetchResults]);
 
   const fetchResults = useCallback(async () => {
     setIsLoading(true);
@@ -35,6 +29,12 @@ export default function SearchPage() {
       setIsLoading(false);
     }
   }, [query]);
+
+  useEffect(() => {
+    if (query) {
+      fetchResults();
+    }
+  }, [query, fetchResults]);
 
   const totalResults = results.places.length + results.events.length;
 
@@ -50,7 +50,7 @@ export default function SearchPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to home
           </Link>
-          
+
           <h1 className="heading-2 mb-2">
             Search Results
           </h1>
@@ -178,5 +178,39 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+function SearchFallback() {
+  return (
+    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-6xl">
+        <div className="mb-8">
+          <Link
+            href="/"
+            className="inline-flex items-center text-muted hover:text-indigo-600 dark:hover:text-indigo-400 mb-4 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to home
+          </Link>
+
+          <h1 className="heading-2 mb-2">
+            Search Results
+          </h1>
+          <p className="text-muted">Loading...</p>
+        </div>
+        <div className="flex justify-center items-center py-20">
+          <div className="spinner h-8 w-8"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchFallback />}>
+      <SearchContent />
+    </Suspense>
   );
 }

@@ -409,7 +409,9 @@ export default function InteractiveMap({ places, events, loading }: InteractiveM
         markersRef.current = L.layerGroup() as any;
       }
 
-      mapRef.current.addLayer(markersRef.current);
+      if (markersRef.current) {
+        mapRef.current.addLayer(markersRef.current);
+      }
       setMapReady(true);
     }
 

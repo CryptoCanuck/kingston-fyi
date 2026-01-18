@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
+import NextAuth from 'next-auth';
+import { authEdgeConfig } from '@/lib/auth.edge';
+
+// Create an edge-compatible auth instance for middleware
+const { auth } = NextAuth(authEdgeConfig);
 
 // Define protected routes and their required roles
 const protectedRoutes = {

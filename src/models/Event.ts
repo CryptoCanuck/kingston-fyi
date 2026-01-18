@@ -219,7 +219,8 @@ eventSchema.virtual('isPast').get(function() {
 // Virtual for availability percentage
 eventSchema.virtual('availabilityPercentage').get(function() {
   if (!this.maxAttendees || this.maxAttendees === 0) return null;
-  return Math.round((this.currentAttendees / this.maxAttendees) * 100);
+  const currentAttendees = this.currentAttendees || 0;
+  return Math.round((currentAttendees / this.maxAttendees) * 100);
 });
 
 // Ensure virtuals are included in JSON
