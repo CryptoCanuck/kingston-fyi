@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.10.0",
+    "@googlemaps/google-maps-services-js": "^3.4.2",
     "@radix-ui/react-slot": "^1.2.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/leaflet.markercluster": "^1.5.5",

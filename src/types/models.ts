@@ -47,6 +47,7 @@ export type PlaceCategory =
 
 export interface Place {
   id: string;
+  googlePlaceId?: string;
   slug: string;
   name: string;
   category: PlaceCategory;

@@ -12,6 +12,7 @@ interface GeoJSONPoint {
 export interface IPlaceDocument extends Omit<IPlace, 'id' | 'createdAt' | 'updatedAt' | 'location'>, Document {
   _id: string;
   ownerId?: string; // Reference to User who owns this place
+  googlePlaceId?: string; // Google Places API place_id for deduplication
   location: GeoJSONPoint;
   createdAt: Date;
   updatedAt: Date;
@@ -165,6 +166,10 @@ const placeSchema = new Schema<IPlaceDocument>({
     default: null,
     index: true,
   },
+  googlePlaceId: {
+    type: String,
+    default: null,
+  },
 }, {
   timestamps: true,
   collection: 'places',
@@ -176,6 +181,7 @@ placeSchema.index({ name: 'text', description: 'text' });
 placeSchema.index({ category: 1, featured: 1 });
 placeSchema.index({ createdAt: -1 });
 placeSchema.index({ 'address.city': 1, category: 1 });
+placeSchema.index({ googlePlaceId: 1 }, { unique: true, sparse: true });
 
 // Virtual for id to match TypeScript interface
 placeSchema.virtual('id').get(function() {
