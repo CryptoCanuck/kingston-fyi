@@ -46,7 +46,11 @@ interface SubmissionListResponse {
   pagination: PaginationData;
 }
 
-export default function SubmissionList() {
+interface SubmissionListProps {
+  onRefresh?: () => void;
+}
+
+export default function SubmissionList({ onRefresh }: SubmissionListProps = {}) {
   const searchParams = useSearchParams();
   const [data, setData] = useState<SubmissionListResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -122,6 +126,10 @@ export default function SubmissionList() {
   const handleSuccess = () => {
     // Refetch submissions to update the list
     setRefreshTrigger(prev => prev + 1);
+    // Also notify parent component to refresh stats
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   if (isLoading) {

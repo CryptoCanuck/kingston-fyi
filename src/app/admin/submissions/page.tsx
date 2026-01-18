@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -17,12 +17,17 @@ import SubmissionList from '@/components/admin/SubmissionList';
 export default function AdminSubmissionsPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, isAdmin } = useAuth();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/login?callbackUrl=/admin/submissions');
     }
   }, [isLoading, isAuthenticated, router]);
+
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   if (isLoading) {
     return (
@@ -100,9 +105,9 @@ export default function AdminSubmissionsPage() {
 
         {/* Admin Content */}
         <div className="space-y-6">
-          <SubmissionStats />
+          <SubmissionStats refreshTrigger={refreshTrigger} />
           <SubmissionFilters />
-          <SubmissionList />
+          <SubmissionList onRefresh={handleRefresh} />
         </div>
       </div>
     </div>

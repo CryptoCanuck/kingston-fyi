@@ -23,7 +23,11 @@ interface SubmissionStats {
   };
 }
 
-export default function SubmissionStats() {
+interface SubmissionStatsProps {
+  refreshTrigger?: number;
+}
+
+export default function SubmissionStats({ refreshTrigger = 0 }: SubmissionStatsProps) {
   const [stats, setStats] = useState<SubmissionStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +52,7 @@ export default function SubmissionStats() {
     };
 
     fetchStats();
-  }, []);
+  }, [refreshTrigger]);
 
   if (isLoading) {
     return (
