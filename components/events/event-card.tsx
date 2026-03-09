@@ -9,7 +9,7 @@ interface EventCardProps {
 }
 
 function formatEventDate(dateStr: string) {
-  const d = new Date(dateStr)
+  const d = new Date(dateStr + 'T00:00:00')
   return {
     month: d.toLocaleDateString('en-CA', { month: 'short' }).toUpperCase(),
     day: d.getDate(),

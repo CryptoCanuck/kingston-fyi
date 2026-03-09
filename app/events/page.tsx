@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Calendar } from 'lucide-react'
 import { getCityFromHeaders, CITY_CONFIG } from '@/lib/city'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { EventCard } from '@/components/events/event-card'
 import type { Event } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
@@ -20,7 +20,7 @@ export default async function EventsPage() {
   const city = await getCityFromHeaders()
   const config = CITY_CONFIG[city]
 
-  const supabase = createServiceClient()
+  const supabase = await createServerSupabaseClient(city)
   const today = new Date().toISOString().split('T')[0]
 
   const { data: events } = await supabase

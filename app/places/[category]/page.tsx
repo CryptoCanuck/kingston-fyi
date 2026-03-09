@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCityFromHeaders, CITY_CONFIG } from '@/lib/city'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
@@ -60,10 +61,10 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="mb-10">
-        <nav className="mb-4 text-sm text-gray-500">
-          <a href="/places" className="hover:text-[var(--city-primary)] transition-colors">
+        <nav aria-label="Breadcrumb" className="mb-4 text-sm text-gray-500">
+          <Link href="/places" className="hover:text-city-primary transition-colors">
             Places
-          </a>
+          </Link>
           <span className="mx-2">/</span>
           <span className="text-gray-900">{category.name}</span>
         </nav>
