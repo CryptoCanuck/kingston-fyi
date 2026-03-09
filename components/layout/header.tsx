@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Calendar, Search, Menu, X } from 'lucide-react'
+import { UserMenu } from '@/components/auth/user-menu'
 
 const navLinks = [
   { href: '/', label: 'Home', icon: null },
@@ -36,6 +37,7 @@ export function Header({ cityName }: { cityName: string }) {
                 {label}
               </Link>
             ))}
+            <UserMenu />
           </nav>
 
           {/* Mobile toggle */}
@@ -64,6 +66,9 @@ export function Header({ cityName }: { cityName: string }) {
               {label}
             </Link>
           ))}
+          <div className="px-3 py-2">
+            <UserMenu />
+          </div>
         </nav>
       )}
     </header>

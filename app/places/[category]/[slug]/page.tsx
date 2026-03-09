@@ -16,6 +16,8 @@ import { getCityFromHeaders, CITY_CONFIG } from '@/lib/city'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { formatRating } from '@/lib/utils'
 import type { Place, Category } from '@/lib/types'
+import ReviewList from '@/components/reviews/review-list'
+import ReviewForm from '@/components/reviews/review-form'
 
 interface Props {
   params: Promise<{ category: string; slug: string }>
@@ -326,6 +328,15 @@ export default async function PlaceDetailPage({ params }: Props) {
           )}
         </aside>
       </div>
+
+      {/* Reviews section */}
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Reviews</h2>
+        <div className="space-y-8">
+          <ReviewForm placeId={typedPlace.id} cityId={city} />
+          <ReviewList placeId={typedPlace.id} cityId={city} />
+        </div>
+      </section>
     </div>
   )
 }
