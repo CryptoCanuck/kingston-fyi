@@ -18,10 +18,8 @@ GRANT USAGE ON SCHEMA auth TO postgres, anon, authenticated, service_role;
 GRANT USAGE ON SCHEMA storage TO postgres, anon, authenticated, service_role;
 GRANT USAGE ON SCHEMA extensions TO postgres, anon, authenticated, service_role;
 
--- Create n8n automation role and schema
-CREATE ROLE n8n_user WITH LOGIN PASSWORD '${N8N_DB_PASSWORD}';
+-- n8n schema (role created by docker/supabase/create-n8n-user.sh)
 CREATE SCHEMA IF NOT EXISTS n8n;
-GRANT ALL ON SCHEMA n8n TO n8n_user;
 
 -- Set search path to include PostGIS functions
 ALTER DATABASE postgres SET search_path TO public, extensions;
@@ -62,7 +60,7 @@ BEGIN
       regexp_replace(
         regexp_replace(
           trim(input),
-          '[^a-zA-Z0-9\s-]', '', 'g'  -- remove non-alphanumeric (keep spaces & hyphens)
+          '[^a-zA-Z0-9[:space:]-]', '', 'g'  -- remove non-alphanumeric (keep spaces & hyphens)
         ),
         '\s+', '-', 'g'                -- spaces to hyphens
       ),
@@ -76,7 +74,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE OR REPLACE FUNCTION set_city_context(p_city_id TEXT)
 RETURNS VOID AS $$
 BEGIN
-  PERFORM set_config('app.current_city', p_city_id, false);
+  PERFORM set_config('app.current_city', p_city_id, true);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -106,7 +104,7 @@ BEGIN
   LIMIT p_limit
   OFFSET p_offset;
 END;
-$$ LANGUAGE plpgsql STABLE;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
 
 -- Find nearby places using PostGIS
 CREATE OR REPLACE FUNCTION nearby_places(
@@ -148,7 +146,7 @@ BEGIN
   ORDER BY distance_meters
   LIMIT p_limit;
 END;
-$$ LANGUAGE plpgsql STABLE;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
 
 -- Update place rating when reviews change
 CREATE OR REPLACE FUNCTION update_place_rating()
@@ -160,7 +158,7 @@ BEGIN
 
   UPDATE places
   SET
-    rating = (SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.place_id = v_place_id),
+    rating = COALESCE((SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.place_id = v_place_id), 0),
     review_count = (SELECT COUNT(*) FROM reviews r WHERE r.place_id = v_place_id),
     updated_at = now()
   WHERE id = v_place_id;
@@ -210,10 +208,14 @@ CREATE TRIGGER set_profiles_updated_at
   BEFORE UPDATE ON profiles
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- Trigger to auto-create profile on user signup
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+-- Trigger to auto-create profile on user signup (guarded: auth.users may not exist yet)
+DO $$ BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'auth' AND tablename = 'users') THEN
+    CREATE TRIGGER on_auth_user_created
+      AFTER INSERT ON auth.users
+      FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+  END IF;
+END $$;
 
 -- 3. Categories
 CREATE TABLE categories (
@@ -236,7 +238,7 @@ CREATE TABLE places (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   city_id TEXT NOT NULL REFERENCES cities(id),
   category_id TEXT NOT NULL REFERENCES categories(id),
-  owner_id UUID REFERENCES profiles(id),
+  owner_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   slug TEXT NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
@@ -275,12 +277,12 @@ CREATE TABLE events (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   city_id TEXT NOT NULL REFERENCES cities(id),
   category_id TEXT NOT NULL REFERENCES categories(id),
-  place_id UUID REFERENCES places(id),
-  organizer_id UUID REFERENCES profiles(id),
+  place_id UUID REFERENCES places(id) ON DELETE SET NULL,
+  organizer_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   slug TEXT NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
-  start_date DATE,
+  start_date DATE NOT NULL,
   end_date DATE,
   start_time TIME,
   end_time TIME,
@@ -312,7 +314,7 @@ CREATE TABLE reviews (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   city_id TEXT NOT NULL REFERENCES cities(id),
   place_id UUID NOT NULL REFERENCES places(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES profiles(id),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
   title TEXT,
   content TEXT,
@@ -345,7 +347,7 @@ CREATE TABLE submissions (
   submitter_id UUID REFERENCES profiles(id),
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   review_notes TEXT,
-  reviewer_id UUID REFERENCES profiles(id),
+  reviewer_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -369,10 +371,6 @@ CREATE INDEX idx_submissions_city_id ON submissions(city_id);
 CREATE INDEX idx_places_city_category ON places(city_id, category_id) WHERE is_active = true;
 CREATE INDEX idx_events_city_category ON events(city_id, category_id) WHERE is_active = true;
 
--- Slug lookups
-CREATE INDEX idx_places_city_slug ON places(city_id, slug);
-CREATE INDEX idx_events_city_slug ON events(city_id, slug);
-
 -- Featured items
 CREATE INDEX idx_places_featured ON places(city_id, is_featured) WHERE is_featured = true AND is_active = true;
 CREATE INDEX idx_events_featured ON events(city_id, is_featured) WHERE is_featured = true AND is_active = true;
@@ -389,6 +387,9 @@ CREATE INDEX idx_events_fts ON events USING GIN(to_tsvector('english', coalesce(
 -- Reviews by place and user
 CREATE INDEX idx_reviews_place_id ON reviews(place_id);
 CREATE INDEX idx_reviews_user_id ON reviews(user_id);
+
+-- Upcoming events
+CREATE INDEX idx_events_upcoming ON events(city_id, start_date) WHERE is_active = true;
 
 -- Submissions status
 CREATE INDEX idx_submissions_status ON submissions(status) WHERE status = 'pending';
@@ -502,6 +503,54 @@ CREATE POLICY "Anyone can create submissions"
   TO anon, authenticated
   WITH CHECK (city_id = current_setting('app.current_city', true));
 
+-- Admin/moderator policies (role checked via profiles table)
+CREATE POLICY "Admins can manage places"
+  ON places FOR ALL
+  TO authenticated
+  USING (EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'moderator')
+  ))
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'moderator')
+  ));
+
+CREATE POLICY "Admins can manage events"
+  ON events FOR ALL
+  TO authenticated
+  USING (EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'moderator')
+  ))
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'moderator')
+  ));
+
+CREATE POLICY "Admins can manage reviews"
+  ON reviews FOR ALL
+  TO authenticated
+  USING (EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'moderator')
+  ))
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'moderator')
+  ));
+
+CREATE POLICY "Admins can view all submissions"
+  ON submissions FOR SELECT
+  TO authenticated
+  USING (EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'moderator')
+  ));
+
+CREATE POLICY "Admins can update submissions"
+  ON submissions FOR UPDATE
+  TO authenticated
+  USING (EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'moderator')
+  ))
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'moderator')
+  ));
+
 -- ============================================================================
 -- GRANTS
 -- ============================================================================
@@ -518,8 +567,18 @@ GRANT SELECT, INSERT, UPDATE ON events TO authenticated;
 GRANT SELECT ON events TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON reviews TO authenticated;
 GRANT SELECT ON reviews TO anon;
-GRANT SELECT, INSERT ON submissions TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON submissions TO authenticated;
 GRANT INSERT ON submissions TO anon;
+GRANT DELETE ON places, events, reviews TO authenticated;
+
+-- Function execution grants
+GRANT EXECUTE ON FUNCTION set_updated_at() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION handle_new_user() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION generate_slug(TEXT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION set_city_context(TEXT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION search_places(TEXT, TEXT, INT, INT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION nearby_places(TEXT, DOUBLE PRECISION, DOUBLE PRECISION, INT, INT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION update_place_rating() TO anon, authenticated;
 
 -- ============================================================================
 -- SEED DATA
@@ -537,7 +596,7 @@ INSERT INTO cities (id, name, province, country, timezone, center, bounds, confi
     '{"north": 45.5000, "south": 45.3500, "east": -75.6000, "west": -75.8000}',
     '{"theme_color": "#dc2626", "tagline": "Canada''s Capital"}',
     true),
-  ('montreal', 'Montreal', 'Quebec', 'CA', 'America/Montreal',
+  ('montreal', 'Montreal', 'Quebec', 'CA', 'America/Toronto',
     ST_SetSRID(ST_MakePoint(-73.5674, 45.5019), 4326)::geography,
     '{"north": 45.5800, "south": 45.4400, "east": -73.4800, "west": -73.6600}',
     '{"theme_color": "#7c3aed", "tagline": "La Métropole"}',

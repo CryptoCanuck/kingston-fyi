@@ -27,7 +27,7 @@ export async function createServerSupabaseClient(cityId?: string) {
   )
 
   if (cityId) {
-    await client.rpc('set_current_city', { city_id: cityId })
+    await client.rpc('set_city_context', { p_city_id: cityId })
   }
 
   return client

@@ -1,6 +1,7 @@
-// City types
-export type City = 'kingston' | 'ottawa' | 'montreal'
+// City identifier type
+export type CityId = 'kingston' | 'ottawa' | 'montreal'
 
+// Frontend city configuration (not a DB table)
 export interface CityConfig {
   name: string
   domain: string
@@ -8,6 +9,8 @@ export interface CityConfig {
   colors: {
     primary: string
     primaryLight: string
+    primaryDark: string
+    accent: string
     gradient: string
   }
   coordinates: {
@@ -17,107 +20,144 @@ export interface CityConfig {
   timezone: string
 }
 
-// Category
+// DB table: cities
+export interface City {
+  id: string
+  name: string
+  province: string
+  country: string
+  timezone: string
+  // center: GEOGRAPHY — handled by PostGIS functions
+  bounds: Record<string, number> | null
+  config: Record<string, unknown>
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+// DB table: profiles
+export interface Profile {
+  id: string
+  city_id: string | null
+  display_name: string | null
+  avatar_url: string | null
+  bio: string | null
+  role: 'user' | 'business_owner' | 'moderator' | 'admin'
+  preferences: Record<string, unknown>
+  stats: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+// DB table: categories
 export interface Category {
   id: string
   name: string
   type: 'place' | 'event'
-  icon: string
-  sortOrder: number
-  parentId: string | null
+  icon: string | null
+  sort_order: number
+  parent_id: string | null
+  created_at: string
+  updated_at: string
 }
 
-// Place
+// DB table: places
 export interface Place {
   id: string
-  cityId: City
-  categoryId: string
+  city_id: string
+  category_id: string
+  owner_id: string | null
   slug: string
   name: string
   description: string | null
-  address: string
-  addressLine2: string | null
-  city: string
-  province: string
-  postalCode: string
-  location: { lat: number; lng: number } | null
+  street_address: string | null
+  city: string | null
+  province: string | null
+  postal_code: string | null
+  country: string | null
+  // location: GEOGRAPHY — handled by PostGIS functions
   phone: string | null
   email: string | null
   website: string | null
-  hours: Record<string, string> | null
-  priceRange: number | null
-  rating: number | null
-  reviewCount: number
-  isVerified: boolean
-  isFeatured: boolean
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+  social_media: Record<string, string>
+  hours: Record<string, unknown> | null
+  price_range: string | null
+  subcategories: string[]
+  features: string[]
+  amenities: string[]
+  images: Record<string, unknown>[]
+  rating: number
+  review_count: number
+  is_verified: boolean
+  is_featured: boolean
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
-// Event
+// DB table: events
 export interface Event {
   id: string
-  cityId: City
-  categoryId: string
+  city_id: string
+  category_id: string
+  place_id: string | null
+  organizer_id: string | null
   slug: string
   title: string
   description: string | null
-  venueName: string | null
-  venueAddress: string | null
-  location: { lat: number; lng: number } | null
-  startDate: string
-  endDate: string | null
-  isAllDay: boolean
-  isRecurring: boolean
-  recurrenceRule: string | null
-  ticketUrl: string | null
-  ticketPrice: string | null
-  organizerName: string | null
-  organizerEmail: string | null
-  isFeatured: boolean
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+  start_date: string
+  end_date: string | null
+  start_time: string | null
+  end_time: string | null
+  venue_name: string | null
+  venue_address: string | null
+  // venue_location: GEOGRAPHY — handled by PostGIS functions
+  organizer_name: string | null
+  organizer_email: string | null
+  organizer_phone: string | null
+  ticket_url: string | null
+  ticket_price: string | null
+  is_free: boolean
+  images: Record<string, unknown>[]
+  tags: string[]
+  is_featured: boolean
+  is_active: boolean
+  status: 'draft' | 'published' | 'cancelled'
+  created_at: string
+  updated_at: string
 }
 
-// Review
+// DB table: reviews
 export interface Review {
   id: string
-  placeId: string
-  userId: string
+  city_id: string
+  place_id: string
+  user_id: string
   rating: number
   title: string | null
-  body: string | null
-  isApproved: boolean
-  createdAt: string
-  updatedAt: string
+  content: string | null
+  visit_date: string | null
+  images: Record<string, unknown>[]
+  helpful_count: number
+  is_verified: boolean
+  created_at: string
+  updated_at: string
 }
 
-// Submission
+// DB table: submissions
 export interface Submission {
   id: string
-  cityId: City
+  city_id: string
   type: 'place' | 'event'
-  status: 'pending' | 'approved' | 'rejected'
   data: Record<string, unknown>
-  submittedBy: string | null
-  reviewedBy: string | null
-  reviewNote: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-// Profile
-export interface Profile {
-  id: string
-  email: string
-  displayName: string | null
-  avatarUrl: string | null
-  role: 'user' | 'editor' | 'admin'
-  cityId: City | null
-  createdAt: string
-  updatedAt: string
+  submitter_name: string | null
+  submitter_email: string | null
+  submitter_id: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  review_notes: string | null
+  reviewer_id: string | null
+  created_at: string
+  updated_at: string
 }
 
 // API response types

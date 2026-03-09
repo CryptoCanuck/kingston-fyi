@@ -4,10 +4,10 @@
 
 :root {
   /* City theming - defaults (Kingston) */
-  --city-primary: #1e3a5f;
-  --city-primary-light: #2d5a8e;
-  --city-primary-dark: #0f1f33;
-  --city-accent: #c41e3a;
+  --city-primary: #1e40af;
+  --city-primary-light: #3b82f6;
+  --city-primary-dark: #162e6e;
+  --city-accent: #f59e0b;
 
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;

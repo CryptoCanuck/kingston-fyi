@@ -1,6 +1,17 @@
 import { NextRequest } from 'next/server'
 import { type ZodSchema, ZodError } from 'zod'
-import { error } from './response'
+
+export class ValidationError extends Error {
+  public status: number
+  public body: { error: { code: string; message: string } }
+
+  constructor(code: string, message: string, status: number) {
+    super(message)
+    this.name = 'ValidationError'
+    this.status = status
+    this.body = { error: { code, message } }
+  }
+}
 
 function formatZodError(e: ZodError): string {
   return e.issues
@@ -16,16 +27,16 @@ export async function validateBody<T>(
   try {
     body = await request.json()
   } catch {
-    throw error('INVALID_JSON', 'Request body is not valid JSON', 400)
+    throw new ValidationError('INVALID_JSON', 'Request body is not valid JSON', 400)
   }
 
   try {
     return schema.parse(body)
   } catch (e) {
     if (e instanceof ZodError) {
-      throw error('VALIDATION_ERROR', formatZodError(e), 422)
+      throw new ValidationError('VALIDATION_ERROR', formatZodError(e), 422)
     }
-    throw error('VALIDATION_ERROR', 'Invalid request body', 422)
+    throw new ValidationError('VALIDATION_ERROR', 'Invalid request body', 422)
   }
 }
 
@@ -39,8 +50,8 @@ export function validateParams<T>(
     return schema.parse(params)
   } catch (e) {
     if (e instanceof ZodError) {
-      throw error('VALIDATION_ERROR', formatZodError(e), 422)
+      throw new ValidationError('VALIDATION_ERROR', formatZodError(e), 422)
     }
-    throw error('VALIDATION_ERROR', 'Invalid query parameters', 422)
+    throw new ValidationError('VALIDATION_ERROR', 'Invalid query parameters', 422)
   }
 }

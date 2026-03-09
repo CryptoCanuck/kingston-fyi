@@ -10,7 +10,7 @@ export function Footer({ cityName }: { cityName: string }) {
           <p className="text-sm">
             &copy; {year} {cityName}.FYI. All rights reserved.
           </p>
-          <nav className="flex items-center gap-6 text-sm">
+          <nav aria-label="Footer navigation" className="flex items-center gap-6 text-sm">
             <Link href="/about" className="hover:text-white transition-colors">
               About
             </Link>
