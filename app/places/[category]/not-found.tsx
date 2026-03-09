@@ -1,0 +1,18 @@
+import Link from 'next/link'
+
+export default function CategoryNotFound() {
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 lg:px-8">
+      <h2 className="text-2xl font-bold text-gray-900">Category Not Found</h2>
+      <p className="mt-2 text-gray-600">
+        The category you&apos;re looking for doesn&apos;t exist.
+      </p>
+      <Link
+        href="/places"
+        className="mt-6 inline-block rounded-lg bg-[var(--city-primary)] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:opacity-90"
+      >
+        Browse All Categories
+      </Link>
+    </div>
+  )
+}
