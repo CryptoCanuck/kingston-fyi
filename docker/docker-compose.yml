@@ -20,7 +20,7 @@ services:
     networks:
       - fyi-network
     healthcheck:
-      test: ["CMD", "cloudflared", "tunnel", "info"]
+      test: ["CMD-SHELL", "pgrep cloudflared || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -251,7 +251,7 @@ services:
     networks:
       - fyi-network
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$REDIS_PASSWORD redis-cli ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -272,9 +272,6 @@ services:
       - NODE_ENV=production
       - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Toronto}
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=supabase-db
       - DB_POSTGRESDB_PORT=5432

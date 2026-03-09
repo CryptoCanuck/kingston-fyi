@@ -40,8 +40,8 @@ export default async function RootLayout({
       style={{
         '--city-primary': config.colors.primary,
         '--city-primary-light': config.colors.primaryLight,
-        '--city-primary-dark': config.colors.primary,
-        '--city-accent': config.colors.primaryLight,
+        '--city-primary-dark': config.colors.primaryDark,
+        '--city-accent': config.colors.accent,
       } as React.CSSProperties}
     >
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>

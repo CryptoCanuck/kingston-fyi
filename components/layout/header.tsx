@@ -25,7 +25,7 @@ export function Header({ cityName }: { cityName: string }) {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav aria-label="Main navigation" className="hidden md:flex items-center gap-6">
             {navLinks.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
@@ -43,6 +43,7 @@ export function Header({ cityName }: { cityName: string }) {
             className="md:hidden p-2 text-white/80 hover:text-white"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
