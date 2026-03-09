@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { getCityFromHeaders, CITY_CONFIG } from '@/lib/city'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { AuthProvider } from '@/components/auth/auth-provider'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import './globals.css'
@@ -34,6 +36,11 @@ export default async function RootLayout({
   const city = await getCityFromHeaders()
   const config = CITY_CONFIG[city]
 
+  const supabase = await createServerSupabaseClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   return (
     <html
       lang="en"
@@ -45,9 +52,11 @@ export default async function RootLayout({
       } as React.CSSProperties}
     >
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
-        <Header cityName={config.name} />
-        <main className="flex-1">{children}</main>
-        <Footer cityName={config.name} />
+        <AuthProvider initialUser={user}>
+          <Header cityName={config.name} />
+          <main className="flex-1">{children}</main>
+          <Footer cityName={config.name} />
+        </AuthProvider>
       </body>
     </html>
   )
