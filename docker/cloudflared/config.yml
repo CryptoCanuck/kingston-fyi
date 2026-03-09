@@ -1,0 +1,46 @@
+# Cloudflare Tunnel Configuration
+# This file defines how traffic is routed from Cloudflare to your services
+#
+# NOTE: This config is used when running cloudflared with a config file.
+# If using TUNNEL_TOKEN environment variable, routing is configured in Cloudflare Dashboard.
+# This file serves as documentation and backup.
+
+tunnel: <TUNNEL_ID>
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  # Kingston.FYI - Routes to Next.js container
+  - hostname: kingston.fyi
+    service: http://nextjs:3000
+    originRequest:
+      httpHostHeader: kingston.fyi
+      noTLSVerify: false
+
+  # Ottawa.FYI - Routes to Next.js container
+  - hostname: ottawa.fyi
+    service: http://nextjs:3000
+    originRequest:
+      httpHostHeader: ottawa.fyi
+      noTLSVerify: false
+
+  # Montreal.FYI - Routes to Next.js container
+  - hostname: montreal.fyi
+    service: http://nextjs:3000
+    originRequest:
+      httpHostHeader: montreal.fyi
+      noTLSVerify: false
+
+  # Wildcard subdomains (optional - for future expansion)
+  # - hostname: "*.kingston.fyi"
+  #   service: http://nextjs:3000
+  #   originRequest:
+  #     httpHostHeader: kingston.fyi
+
+  # Catch-all rule (required) - Returns 404 for unmatched requests
+  - service: http_status:404
+
+# Additional settings (optional)
+# originRequest:
+#   connectTimeout: 30s
+#   noTLSVerify: false
+#   disableChunkedEncoding: false
