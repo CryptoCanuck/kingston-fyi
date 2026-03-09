@@ -1,0 +1,20 @@
+# Development Dockerfile for Next.js
+# Supports hot reload with volume mounting
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Source code is mounted as volume for hot reload
+# Don't copy source files here
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=development
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

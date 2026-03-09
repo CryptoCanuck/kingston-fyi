@@ -1,36 +1,147 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FYI Multi-City Directory Platform
 
-## Getting Started
+A self-hosted, multi-city local directory platform running on Docker with Cloudflare Tunnel for secure ingress. One codebase serves multiple city domains (kingston.fyi, ottawa.fyi, montreal.fyi).
 
-First, run the development server:
+## Quick Start
+
+### Prerequisites
+
+- Docker & Docker Compose
+- Git
+- OpenSSL (for secret generation)
+
+### 1. Clone and Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd fyi-multi-city
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Generate Secrets
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+./scripts/generate-secrets.sh
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This automatically generates:
+- PostgreSQL password
+- JWT secret
+- Supabase API keys (anon and service_role)
 
-## Learn More
+### 3. Start Development Stack
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+./scripts/start-dev.sh
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Access Services
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js App**: http://localhost:3000
+- **Supabase Studio**: http://localhost:3001
+- **Supabase API**: http://localhost:8000
+- **n8n Workflows**: http://localhost:5678
+- **Email Testing**: http://localhost:9000
 
-## Deploy on Vercel
+## Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Multi-Domain Routing**: Single codebase serves multiple city domains
+- **Self-Hosted**: Everything runs in Docker on your infrastructure
+- **Secure Ingress**: Cloudflare Tunnel (no exposed ports)
+- **Modern Stack**: Next.js 14+, TypeScript, Supabase, Redis
+- **Automation Ready**: n8n for workflows and scraping
+- **PostGIS**: Geospatial queries for location-based features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Architecture
+
+```
+User → Cloudflare → Cloudflare Tunnel
+  → cloudflared container
+    → Next.js (domain detection)
+      → Supabase Stack
+        → PostgreSQL + PostGIS
+        → Redis Cache
+```
+
+## Project Structure
+
+```
+├── app/                    # Next.js App Router
+│   ├── api/health/         # Health check endpoint
+│   ├── layout.tsx          # Root layout
+│   └── page.tsx            # Homepage (city-aware)
+├── docker/                 # Docker configuration
+│   ├── cloudflared/        # Cloudflare Tunnel config
+│   ├── supabase/           # Supabase configuration
+│   ├── docker-compose.yml  # Production
+│   └── docker-compose.dev.yml # Development
+├── docs/                   # Documentation
+├── scripts/                # Automation scripts
+└── middleware.ts           # Domain detection
+```
+
+## Documentation
+
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Development Guide](docs/DEVELOPMENT.md)
+- [Cloudflare Setup](docs/CLOUDFLARE_SETUP.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `./scripts/generate-secrets.sh` | Generate all required secrets |
+| `./scripts/start-dev.sh` | Start development environment |
+| `./scripts/start-prod.sh` | Start production with Cloudflare Tunnel |
+| `./scripts/stop.sh` | Stop all services |
+| `./scripts/logs.sh [service]` | View service logs |
+
+## Production Deployment
+
+1. Set up Cloudflare Tunnel (see [Cloudflare Setup](docs/CLOUDFLARE_SETUP.md))
+2. Add `TUNNEL_TOKEN` to `docker/.env`
+3. Run `./scripts/start-prod.sh`
+
+## Tech Stack
+
+- **Frontend/Backend**: Next.js 14+ (App Router, TypeScript)
+- **Database**: Supabase (self-hosted PostgreSQL 15 + PostGIS)
+- **Auth**: Supabase Auth (GoTrue)
+- **Cache**: Redis 7
+- **Automation**: n8n
+- **Ingress**: Cloudflare Tunnel
+- **Orchestration**: Docker Compose
+
+## Phase 1 Status
+
+This is Phase 1 (Infrastructure) of the FYI Multi-City platform:
+
+- [x] Next.js application with domain detection
+- [x] Docker Compose orchestration
+- [x] Supabase self-hosted stack
+- [x] Cloudflare Tunnel configuration
+- [x] Startup automation scripts
+- [x] Documentation
+
+Next phases will add:
+- Database schema for directory data
+- User authentication flows
+- Business listings and reviews
+- News aggregation
+- Maps integration
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch
+3. Run `./scripts/start-dev.sh` for development
+4. Make changes (hot reload enabled)
+5. Submit pull request
+
+## License
+
+[Add your license here]
+
+---
+
+Built with the BMad Method
