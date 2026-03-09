@@ -10,7 +10,7 @@ export function formatRating(rating: number): string {
 }
 
 export function formatDate(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date
+  const d = typeof date === 'string' ? new Date(date + (date.includes('T') ? '' : 'T00:00:00')) : date
   return d.toLocaleDateString('en-CA', {
     year: 'numeric',
     month: 'long',

@@ -13,7 +13,7 @@ import {
   ArrowLeft,
 } from 'lucide-react'
 import { getCityFromHeaders, CITY_CONFIG } from '@/lib/city'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/utils'
 import type { Event } from '@/lib/types'
 
@@ -31,7 +31,7 @@ function buildGoogleMapsUrl(address: string): string {
 }
 
 async function getEvent(slug: string, city: string): Promise<Event | null> {
-  const supabase = createServiceClient()
+  const supabase = await createServerSupabaseClient(city)
 
   const { data } = await supabase
     .from('events')

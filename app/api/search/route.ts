@@ -46,14 +46,13 @@ export async function GET(request: NextRequest) {
 
     // Search events using ilike (parameterized by Supabase client)
     if (params.type === 'all' || params.type === 'events') {
-      const pattern = `%${params.q}%`
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select('*')
         .eq('city_id', city)
         .eq('is_active', true)
         .eq('status', 'published')
-        .or(`title.ilike.${pattern},description.ilike.${pattern}`)
+        .or(`title.ilike.%${params.q.replace(/[%_,.()"']/g, '')}%,description.ilike.%${params.q.replace(/[%_,.()"']/g, '')}%`)
         .order('start_date', { ascending: true })
         .limit(params.limit)
 

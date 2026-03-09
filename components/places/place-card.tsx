@@ -12,7 +12,7 @@ interface PlaceCardProps {
 export function PlaceCard({ place, categorySlug, className }: PlaceCardProps) {
   const href = categorySlug
     ? `/places/${categorySlug}/${place.slug}`
-    : `/places/${place.slug}`
+    : `/places/${place.category_id}/${place.slug}`
 
   return (
     <Link

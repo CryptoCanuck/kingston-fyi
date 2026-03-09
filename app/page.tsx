@@ -5,6 +5,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { SearchInput } from '@/components/ui/search-input'
 import { PlaceCard } from '@/components/places/place-card'
 import { EventCard } from '@/components/events/event-card'
+import type { Metadata } from 'next'
 import type { Place, Event, Category } from '@/lib/types'
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -22,10 +23,19 @@ function getCategoryIcon(name: string) {
   return <MapPin className="h-6 w-6" />
 }
 
+export async function generateMetadata() {
+  const cityId = await getCityFromHeaders()
+  const config = CITY_CONFIG[cityId]
+  return {
+    title: `${config.name} — Local Directory`,
+    description: `Discover the best places, events, and things to do in ${config.name}. ${config.tagline}`,
+  }
+}
+
 export default async function HomePage() {
   const cityId = await getCityFromHeaders()
   const config = CITY_CONFIG[cityId]
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient(cityId)
 
   const [
     { data: featuredPlaces },
@@ -96,7 +106,7 @@ export default async function HomePage() {
             {cats.map((cat) => (
               <Link
                 key={cat.id}
-                href={`/places/${cat.name.toLowerCase().replace(/\s+/g, '-')}`}
+                href={`/places/${cat.id}`}
                 className="flex flex-col items-center gap-2 rounded-xl border border-gray-100 bg-white p-5 text-center shadow-sm transition-all hover:shadow-md hover:border-city-primary/30 hover:-translate-y-0.5"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-city-primary/10 text-city-primary">

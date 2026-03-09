@@ -30,6 +30,7 @@ export function SearchInput({ placeholder = 'Search places, events, and more...'
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
+        aria-label="Search"
         className="w-full rounded-full border border-gray-200 bg-white py-3 pl-12 pr-4 text-base shadow-sm transition-shadow placeholder:text-gray-400 focus:border-city-primary focus:outline-none focus:ring-2 focus:ring-city-primary/20"
       />
     </form>

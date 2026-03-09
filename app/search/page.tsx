@@ -33,9 +33,10 @@ function SearchContent() {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&type=all`)
       if (res.ok) {
         const json = await res.json()
+        const groups = (json.data ?? []) as { type: string; items: unknown[] }[]
         setResults({
-          places: json.data?.places ?? [],
-          events: json.data?.events ?? [],
+          places: (groups.find((g) => g.type === 'places')?.items ?? []) as Place[],
+          events: (groups.find((g) => g.type === 'events')?.items ?? []) as Event[],
         })
       } else {
         setResults({ places: [], events: [] })
@@ -73,6 +74,7 @@ function SearchContent() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Search places, events, and more..."
+          aria-label="Search"
           className="w-full rounded-full border border-gray-200 bg-white py-3 pl-12 pr-4 text-base shadow-sm transition-shadow placeholder:text-gray-400 focus:border-city-primary focus:outline-none focus:ring-2 focus:ring-city-primary/20"
         />
       </form>

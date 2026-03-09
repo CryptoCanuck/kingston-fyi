@@ -131,17 +131,17 @@ export default async function PlaceDetailPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-1 text-sm text-gray-500">
+      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1 text-sm text-gray-500">
         <Link
           href="/places"
-          className="hover:text-[var(--city-primary)] transition-colors"
+          className="hover:text-city-primary transition-colors"
         >
           Places
         </Link>
         <ChevronRight className="h-3.5 w-3.5" />
         <Link
           href={`/places/${categorySlug}`}
-          className="hover:text-[var(--city-primary)] transition-colors"
+          className="hover:text-city-primary transition-colors"
         >
           {categoryName}
         </Link>
@@ -165,7 +165,7 @@ export default async function PlaceDetailPage({ params }: Props) {
         <div className="mt-3 flex flex-wrap items-center gap-4">
           <Link
             href={`/places/${categorySlug}`}
-            className="inline-flex items-center rounded-full bg-[var(--city-primary)]/10 px-3 py-1 text-sm font-medium text-[var(--city-primary)]"
+            className="inline-flex items-center rounded-full bg-city-primary/10 px-3 py-1 text-sm font-medium text-city-primary"
           >
             {categoryName}
           </Link>
@@ -259,7 +259,7 @@ export default async function PlaceDetailPage({ params }: Props) {
                       href={mapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-1 inline-flex items-center gap-1 text-[var(--city-primary)] hover:underline"
+                      className="mt-1 inline-flex items-center gap-1 text-city-primary hover:underline"
                     >
                       View on Google Maps
                       <ExternalLink className="h-3 w-3" />
@@ -274,7 +274,7 @@ export default async function PlaceDetailPage({ params }: Props) {
                 <Phone className="h-4 w-4 shrink-0 text-gray-400" />
                 <a
                   href={`tel:${typedPlace.phone}`}
-                  className="text-gray-700 hover:text-[var(--city-primary)]"
+                  className="text-gray-700 hover:text-city-primary"
                 >
                   {typedPlace.phone}
                 </a>
@@ -286,7 +286,7 @@ export default async function PlaceDetailPage({ params }: Props) {
                 <Mail className="h-4 w-4 shrink-0 text-gray-400" />
                 <a
                   href={`mailto:${typedPlace.email}`}
-                  className="text-gray-700 hover:text-[var(--city-primary)]"
+                  className="text-gray-700 hover:text-city-primary"
                 >
                   {typedPlace.email}
                 </a>
@@ -300,7 +300,7 @@ export default async function PlaceDetailPage({ params }: Props) {
                   href={typedPlace.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[var(--city-primary)] hover:underline truncate"
+                  className="text-city-primary hover:underline truncate"
                 >
                   {typedPlace.website.replace(/^https?:\/\//, '')}
                 </a>
