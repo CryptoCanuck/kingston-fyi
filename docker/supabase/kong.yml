@@ -28,7 +28,7 @@ acls:
 services:
   ## Open Auth routes
   - name: auth-v1-open
-    url: http://auth:9999/verify
+    url: http://supabase-auth:9999/verify
     routes:
       - name: auth-v1-open
         strip_path: true
@@ -37,7 +37,7 @@ services:
     plugins:
       - name: cors
   - name: auth-v1-open-callback
-    url: http://auth:9999/callback
+    url: http://supabase-auth:9999/callback
     routes:
       - name: auth-v1-open-callback
         strip_path: true
@@ -46,7 +46,7 @@ services:
     plugins:
       - name: cors
   - name: auth-v1-open-authorize
-    url: http://auth:9999/authorize
+    url: http://supabase-auth:9999/authorize
     routes:
       - name: auth-v1-open-authorize
         strip_path: true
@@ -57,8 +57,8 @@ services:
 
   ## Secure Auth routes
   - name: auth-v1
-    _comment: "GoTrue: /auth/v1/* -> http://auth:9999/*"
-    url: http://auth:9999/
+    _comment: "GoTrue: /auth/v1/* -> http://supabase-auth:9999/*"
+    url: http://supabase-auth:9999/
     routes:
       - name: auth-v1-all
         strip_path: true
@@ -78,8 +78,8 @@ services:
 
   ## Secure REST routes
   - name: rest-v1
-    _comment: "PostgREST: /rest/v1/* -> http://rest:3000/*"
-    url: http://rest:3000/
+    _comment: "PostgREST: /rest/v1/* -> http://supabase-rest:3000/*"
+    url: http://supabase-rest:3000/
     routes:
       - name: rest-v1-all
         strip_path: true
@@ -99,8 +99,8 @@ services:
 
   ## Secure GraphQL routes
   - name: graphql-v1
-    _comment: "pg_graphql: /graphql/v1/* -> http://rest:3000/rpc/graphql"
-    url: http://rest:3000/rpc/graphql
+    _comment: "pg_graphql: /graphql/v1/* -> http://supabase-rest:3000/rpc/graphql"
+    url: http://supabase-rest:3000/rpc/graphql
     routes:
       - name: graphql-v1-all
         strip_path: true
@@ -118,32 +118,10 @@ services:
             - admin
             - anon
 
-  ## Secure Realtime routes
-  - name: realtime-v1-ws
-    _comment: "Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*"
-    url: http://realtime-dev:4000/socket
-    protocol: ws
-    routes:
-      - name: realtime-v1-ws
-        strip_path: true
-        paths:
-          - /realtime/v1/
-    plugins:
-      - name: cors
-      - name: key-auth
-        config:
-          hide_credentials: false
-      - name: acl
-        config:
-          hide_groups_header: true
-          allow:
-            - admin
-            - anon
-
   ## Storage routes
   - name: storage-v1
-    _comment: "Storage: /storage/v1/* -> http://storage:5000/*"
-    url: http://storage:5000/
+    _comment: "Storage: /storage/v1/* -> http://supabase-storage:5000/*"
+    url: http://supabase-storage:5000/
     routes:
       - name: storage-v1-all
         strip_path: true
@@ -163,8 +141,8 @@ services:
 
   ## Secure Database routes
   - name: meta
-    _comment: "pg-meta: /pg/* -> http://meta:8080/*"
-    url: http://meta:8080/
+    _comment: "pg-meta: /pg/* -> http://supabase-meta:8080/*"
+    url: http://supabase-meta:8080/
     routes:
       - name: meta-all
         strip_path: true
