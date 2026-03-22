@@ -1,6 +1,8 @@
 import { Worker } from 'bullmq'
 import { connection } from './connection'
 import { QUEUE_NAMES } from './queues'
+import { scrapingWorker } from './scraping/orchestrator'
+import { enrichmentWorker } from './scraping/enrichment'
 
 console.log('Starting FYI workers...')
 
@@ -49,7 +51,13 @@ const notificationsWorker = new Worker(
 )
 
 // Graceful shutdown
-const workers = [meiliSyncWorker, moderationWorker, notificationsWorker]
+const workers = [
+  meiliSyncWorker,
+  moderationWorker,
+  notificationsWorker,
+  scrapingWorker,
+  enrichmentWorker,
+]
 
 async function shutdown() {
   console.log('Shutting down workers...')
