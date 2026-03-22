@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useState, useEffect, useCallback, Suspense } from 'react'
-import { Search } from 'lucide-react'
+import { Search, MapPin, Calendar, Newspaper } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EventCard } from '@/components/events/event-card'
 import { PlaceCard } from '@/components/places/place-card'
@@ -21,6 +21,7 @@ function SearchContent() {
   const [input, setInput] = useState(query)
   const [results, setResults] = useState<SearchResults | null>(null)
   const [loading, setLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'all' | 'places' | 'events'>('all')
 
   const fetchResults = useCallback(async (q: string) => {
     if (!q.trim()) {
@@ -63,9 +64,13 @@ function SearchContent() {
 
   const hasResults = results && (results.places.length > 0 || results.events.length > 0)
   const noResults = results && results.places.length === 0 && results.events.length === 0
+  const totalResults = (results?.places.length ?? 0) + (results?.events.length ?? 0)
+
+  const filteredPlaces = activeTab === 'events' ? [] : (results?.places ?? [])
+  const filteredEvents = activeTab === 'places' ? [] : (results?.events ?? [])
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
       {/* Search input */}
       <form onSubmit={handleSubmit} className="relative mb-8">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -75,49 +80,65 @@ function SearchContent() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Search places, events, and more..."
           aria-label="Search"
-          className="w-full rounded-full border border-gray-200 bg-white py-3 pl-12 pr-4 text-base shadow-sm transition-shadow placeholder:text-gray-400 focus:border-city-primary focus:outline-none focus:ring-2 focus:ring-city-primary/20"
+          className="input pl-12 pr-28 py-3.5 text-lg rounded-2xl shadow-md"
         />
+        <button
+          type="submit"
+          className="absolute right-2 top-1/2 -translate-y-1/2 btn btn-primary py-2"
+        >
+          Search
+        </button>
       </form>
+
+      {/* Results header with tabs */}
+      {hasResults && !loading && (
+        <div className="mb-6 flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            <strong className="text-gray-700">{totalResults}</strong> results for &ldquo;{query}&rdquo;
+          </p>
+          <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
+            {(['all', 'places', 'events'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all ${
+                  activeTab === tab
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Loading state */}
       {loading && (
-        <div className="space-y-6">
-          <div>
-            <Skeleton className="mb-3 h-6 w-24" />
-            <div className="grid gap-4 sm:grid-cols-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-                  <Skeleton className="h-32 w-full rounded-lg" />
-                  <Skeleton className="mt-3 h-5 w-3/4" />
+        <div className="space-y-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="card p-5">
+              <div className="flex gap-4">
+                <Skeleton className="h-20 w-24 rounded-xl" />
+                <div className="flex-1">
+                  <Skeleton className="h-5 w-3/4" />
                   <Skeleton className="mt-2 h-4 w-1/2" />
+                  <Skeleton className="mt-2 h-4 w-1/3" />
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <Skeleton className="mb-3 h-6 w-24" />
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-                  <div className="flex gap-4">
-                    <Skeleton className="h-16 w-16 rounded-lg" />
-                    <div className="flex-1">
-                      <Skeleton className="h-5 w-3/4" />
-                      <Skeleton className="mt-2 h-4 w-1/2" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       )}
 
       {/* No query */}
       {!query && !loading && (
-        <div className="py-12 text-center">
-          <Search className="mx-auto h-12 w-12 text-gray-300" />
-          <p className="mt-4 text-gray-500">
+        <div className="py-20 text-center">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[var(--city-surface)]">
+            <Search className="h-10 w-10 text-[var(--city-primary)] opacity-50" />
+          </div>
+          <p className="mt-6 text-gray-500">
             Enter a search term to find places and events.
           </p>
         </div>
@@ -125,10 +146,12 @@ function SearchContent() {
 
       {/* No results */}
       {!loading && noResults && query && (
-        <div className="py-12 text-center">
-          <Search className="mx-auto h-12 w-12 text-gray-300" />
-          <h2 className="mt-4 text-lg font-semibold text-gray-900">No results found</h2>
-          <p className="mt-2 text-sm text-gray-500">
+        <div className="py-20 text-center">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gray-100">
+            <Search className="h-10 w-10 text-gray-300" />
+          </div>
+          <h2 className="mt-6 text-xl font-bold text-gray-900">No results found</h2>
+          <p className="mt-2 text-gray-500">
             No places or events match &ldquo;{query}&rdquo;. Try a different search term.
           </p>
         </div>
@@ -136,27 +159,29 @@ function SearchContent() {
 
       {/* Results */}
       {!loading && hasResults && (
-        <div className="space-y-10">
-          {results.places.length > 0 && (
+        <div className="space-y-8">
+          {filteredPlaces.length > 0 && (
             <section>
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">
-                Places ({results.places.length})
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
+                <MapPin className="h-5 w-5 text-[var(--city-primary)]" />
+                Places ({results!.places.length})
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
-                {results.places.map((place) => (
+                {filteredPlaces.map((place) => (
                   <PlaceCard key={place.id} place={place} />
                 ))}
               </div>
             </section>
           )}
 
-          {results.events.length > 0 && (
+          {filteredEvents.length > 0 && (
             <section>
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">
-                Events ({results.events.length})
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
+                <Calendar className="h-5 w-5 text-[var(--city-primary)]" />
+                Events ({results!.events.length})
               </h2>
               <div className="space-y-3">
-                {results.events.map((event) => (
+                {filteredEvents.map((event) => (
                   <EventCard key={event.id} event={event} />
                 ))}
               </div>
@@ -172,8 +197,8 @@ export default function SearchPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-          <Skeleton className="h-12 w-full rounded-full" />
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+          <Skeleton className="h-14 w-full rounded-2xl" />
         </div>
       }
     >

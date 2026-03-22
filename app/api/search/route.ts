@@ -4,6 +4,7 @@ import { getCityFromHeaders } from '@/lib/city'
 import { createServiceClient } from '@/lib/supabase/server'
 import { success, error } from '@/lib/api/response'
 import { validateParams, ValidationError } from '@/lib/api/validate'
+import { searchPlaces } from '@/lib/meilisearch'
 
 const querySchema = z.object({
   q: z.string().min(2, 'Search query must be at least 2 characters'),
@@ -20,39 +21,47 @@ export async function GET(request: NextRequest) {
     const city = await getCityFromHeaders()
     const params = validateParams(request.nextUrl.searchParams, querySchema)
 
-    const supabase = createServiceClient()
-    await supabase.rpc('set_city_context', { p_city_id: city })
-
     const results: { type: string; items: unknown[] }[] = []
 
-    // Search places using the search_places RPC function
+    // Search places — try Meilisearch first, fall back to Postgres FTS
     if (params.type === 'all' || params.type === 'places') {
-      const { data: places, error: placesError } = await supabase.rpc(
-        'search_places',
-        {
+      let places: unknown[] = []
+
+      try {
+        const meiliResults = await searchPlaces(params.q, {
+          cityId: city,
+          limit: params.limit,
+        })
+        places = meiliResults.hits
+      } catch {
+        // Meilisearch unavailable — fallback to Postgres
+        const supabase = createServiceClient()
+        await supabase.rpc('set_city_context', { p_city_id: city })
+        const { data } = await supabase.rpc('search_places', {
           p_city_id: city,
           p_query: params.q,
           p_limit: params.limit,
           p_offset: 0,
-        }
-      )
-
-      if (placesError) {
-        return error('DB_ERROR', placesError.message, 500)
+        })
+        places = data ?? []
       }
 
-      results.push({ type: 'places', items: places ?? [] })
+      results.push({ type: 'places', items: places })
     }
 
-    // Search events using ilike (parameterized by Supabase client)
+    // Search events (Postgres — Meilisearch for events is optional)
     if (params.type === 'all' || params.type === 'events') {
+      const supabase = createServiceClient()
+      await supabase.rpc('set_city_context', { p_city_id: city })
+
+      const sanitizedQuery = params.q.replace(/[%_,.()"']/g, '')
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select('*')
         .eq('city_id', city)
         .eq('is_active', true)
         .eq('status', 'published')
-        .or(`title.ilike.%${params.q.replace(/[%_,.()"']/g, '')}%,description.ilike.%${params.q.replace(/[%_,.()"']/g, '')}%`)
+        .or(`title.ilike.%${sanitizedQuery}%,description.ilike.%${sanitizedQuery}%`)
         .order('start_date', { ascending: true })
         .limit(params.limit)
 

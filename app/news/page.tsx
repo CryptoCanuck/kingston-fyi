@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Newspaper, ExternalLink } from 'lucide-react'
 import { getCityFromHeaders, CITY_CONFIG } from '@/lib/city'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
@@ -51,9 +52,17 @@ export default async function NewsPage({ searchParams }: Props) {
   const news = (articles ?? []) as NewsArticle[]
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-gray-900">{config.name} News</h1>
-      <p className="mt-2 text-gray-600">Latest local news and community updates</p>
+    <div className="mx-auto max-w-4xl px-4 py-12">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-2">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--city-surface)]">
+          <Newspaper className="h-5 w-5 text-[var(--city-primary)]" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">{config.name} News</h1>
+          <p className="text-gray-500">Latest local news and community updates</p>
+        </div>
+      </div>
 
       {/* Category Filters */}
       <div className="mt-6 flex flex-wrap gap-2">
@@ -61,10 +70,10 @@ export default async function NewsPage({ searchParams }: Props) {
           <Link
             key={cat.id}
             href={cat.id === 'all' ? '/news' : `/news?category=${cat.id}`}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+            className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
               (category || 'all') === cat.id
-                ? 'bg-city-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-[var(--city-primary)] text-white shadow-md'
+                : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
             }`}
           >
             {cat.label}
@@ -73,51 +82,49 @@ export default async function NewsPage({ searchParams }: Props) {
       </div>
 
       {/* Articles */}
-      <div className="mt-8 space-y-6">
+      <div className="mt-8 space-y-4">
         {news.length === 0 ? (
-          <p className="text-gray-500">No news articles found.</p>
+          <div className="text-center py-16">
+            <Newspaper className="mx-auto h-12 w-12 text-gray-300" />
+            <p className="mt-4 text-gray-500">No news articles found.</p>
+          </div>
         ) : (
           news.map((article) => (
-            <article
-              key={article.id}
-              className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
-            >
+            <article key={article.id} className="card p-5">
               <div className="flex items-start gap-4">
                 {article.thumbnail_url && (
                   <img
                     src={article.thumbnail_url}
                     alt=""
-                    className="h-20 w-28 flex-shrink-0 rounded-md object-cover"
+                    className="h-24 w-32 flex-shrink-0 rounded-xl object-cover"
                   />
                 )}
-                <div className="flex-1">
-                  <h2 className="text-lg font-semibold text-gray-900">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg font-bold text-gray-900 leading-snug">
                     <a
                       href={article.source_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-city-primary"
+                      className="hover:text-[var(--city-primary)] transition-colors"
                     >
                       {article.title}
+                      <ExternalLink className="inline-block ml-1.5 h-3.5 w-3.5 text-gray-400" />
                     </a>
                   </h2>
                   {article.summary && (
-                    <p className="mt-1 text-sm text-gray-600">{article.summary}</p>
+                    <p className="mt-2 text-sm text-gray-500 leading-relaxed line-clamp-2">
+                      {article.summary}
+                    </p>
                   )}
-                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-400">
-                    <span>{article.source_name}</span>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                    <span className="font-medium text-gray-500">{article.source_name}</span>
                     {article.published_at && (
-                      <span>
-                        {new Date(article.published_at).toLocaleDateString()}
-                      </span>
+                      <span>{new Date(article.published_at).toLocaleDateString()}</span>
                     )}
                     {article.categories.length > 0 && (
                       <div className="flex gap-1">
                         {article.categories.map((cat) => (
-                          <span
-                            key={cat}
-                            className="rounded bg-gray-100 px-2 py-0.5 text-xs"
-                          >
+                          <span key={cat} className="badge bg-gray-100 text-gray-500">
                             {cat}
                           </span>
                         ))}
@@ -132,11 +139,11 @@ export default async function NewsPage({ searchParams }: Props) {
       </div>
 
       {/* Pagination */}
-      <div className="mt-8 flex justify-center gap-4">
+      <div className="mt-10 flex justify-center gap-3">
         {page > 1 && (
           <Link
             href={`/news?page=${page - 1}${category ? `&category=${category}` : ''}`}
-            className="rounded-md bg-gray-100 px-4 py-2 text-sm hover:bg-gray-200"
+            className="btn btn-secondary"
           >
             Previous
           </Link>
@@ -144,7 +151,7 @@ export default async function NewsPage({ searchParams }: Props) {
         {news.length === pageSize && (
           <Link
             href={`/news?page=${page + 1}${category ? `&category=${category}` : ''}`}
-            className="rounded-md bg-gray-100 px-4 py-2 text-sm hover:bg-gray-200"
+            className="btn btn-secondary"
           >
             Next
           </Link>

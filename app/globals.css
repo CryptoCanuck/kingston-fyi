@@ -6,18 +6,12 @@
   /* City theming - defaults (Kingston) */
   --city-primary: #1e40af;
   --city-primary-light: #3b82f6;
-  --city-primary-dark: #162e6e;
-  --city-accent: #f59e0b;
-
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-rgb: 10, 10, 10;
-  }
+  --city-primary-dark: #1e3a8a;
+  --city-accent: #60a5fa;
+  --city-gradient-from: #1e3a8a;
+  --city-gradient-to: #3b82f6;
+  --city-surface: #eff6ff;
+  --city-hero-overlay: rgba(30, 64, 175, 0.85);
 }
 
 @layer base {
@@ -34,12 +28,105 @@
   }
 
   body {
-    color: rgb(var(--foreground-rgb));
-    background: rgb(var(--background-rgb));
+    color: #111827;
+    background: #f9fafb;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   a {
     color: inherit;
     text-decoration: none;
   }
+}
+
+@layer components {
+  /* Card component */
+  .card {
+    @apply rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-200;
+  }
+  .card:hover {
+    @apply shadow-lg border-gray-200 -translate-y-0.5;
+  }
+
+  /* Badge component */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .badge-primary {
+    @apply bg-[var(--city-surface)] text-[var(--city-primary)];
+  }
+  .badge-success {
+    @apply bg-emerald-50 text-emerald-700;
+  }
+  .badge-warning {
+    @apply bg-amber-50 text-amber-700;
+  }
+  .badge-danger {
+    @apply bg-red-50 text-red-700;
+  }
+
+  /* Button styles */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  .btn-primary {
+    @apply bg-[var(--city-primary)] text-white focus:ring-[var(--city-primary)];
+    filter: brightness(1);
+  }
+  .btn-primary:hover {
+    filter: brightness(1.1);
+  }
+  .btn-secondary {
+    @apply bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 focus:ring-gray-300;
+  }
+  .btn-ghost {
+    @apply text-gray-600 hover:bg-gray-100 focus:ring-gray-300;
+  }
+  .btn-lg {
+    @apply px-6 py-3 text-base rounded-2xl;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm transition-all placeholder:text-gray-400 focus:border-[var(--city-primary)] focus:outline-none focus:ring-2 focus:ring-blue-200;
+  }
+
+  /* Section titles */
+  .section-title {
+    @apply text-2xl font-bold tracking-tight text-gray-900;
+  }
+  .section-subtitle {
+    @apply mt-2 text-gray-500;
+  }
+
+  /* City gradient */
+  .city-gradient {
+    background: linear-gradient(135deg, var(--city-gradient-from), var(--city-gradient-to));
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }

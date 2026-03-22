@@ -51,7 +51,7 @@ services:
     restart: unless-stopped
     volumes:
       - supabase-db-data:/var/lib/postgresql/data
-      - ./supabase/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./supabase:/supabase-config
     environment:
       POSTGRES_HOST: /var/run/postgresql
       PGPORT: 5432

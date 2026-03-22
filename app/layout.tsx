@@ -18,10 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: `${config.name}.FYI - ${config.tagline}`,
+      default: `${config.name}.FYI — ${config.tagline}`,
       template: `%s | ${config.name}.FYI`,
     },
-    description: `${config.tagline} - Your local community directory for ${config.name}. Find places, events, and more.`,
+    description: `${config.description}. Your local community directory for ${config.name}. Find places, events, news, and more.`,
     openGraph: {
       siteName: `${config.name}.FYI`,
     },
@@ -49,11 +49,14 @@ export default async function RootLayout({
         '--city-primary-light': config.colors.primaryLight,
         '--city-primary-dark': config.colors.primaryDark,
         '--city-accent': config.colors.accent,
+        '--city-gradient-from': config.colors.gradientFrom,
+        '--city-gradient-to': config.colors.gradientTo,
+        '--city-surface': config.colors.surface,
       } as React.CSSProperties}
     >
-      <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
+      <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col bg-gray-50`}>
         <AuthProvider initialUser={user}>
-          <Header cityName={config.name} />
+          <Header cityName={config.name} cityTagline={config.tagline} />
           <main className="flex-1">{children}</main>
           <Footer cityName={config.name} />
         </AuthProvider>

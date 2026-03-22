@@ -6,11 +6,15 @@ export interface CityConfig {
   name: string
   domain: string
   tagline: string
+  description: string
   colors: {
     primary: string
     primaryLight: string
     primaryDark: string
     accent: string
+    gradientFrom: string
+    gradientTo: string
+    surface: string
     gradient: string
   }
   coordinates: {

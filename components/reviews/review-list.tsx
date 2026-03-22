@@ -44,6 +44,7 @@ export default async function ReviewList({ placeId, cityId }: ReviewListProps) {
     .select('*, profiles:user_id(display_name, avatar_url)')
     .eq('place_id', placeId)
     .eq('city_id', cityId)
+    .eq('moderation_status', 'approved')
     .order('created_at', { ascending: false })
     .limit(20)
 
@@ -62,7 +63,7 @@ export default async function ReviewList({ placeId, cityId }: ReviewListProps) {
       {typedReviews.map((review) => (
         <div
           key={review.id}
-          className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm"
+          className="card p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
