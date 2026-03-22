@@ -44,6 +44,34 @@ export const CITY_CONFIG: Record<CityId, CityConfig> = {
     coordinates: { lat: 45.5019, lng: -73.5674 },
     timezone: 'America/Toronto',
   },
+  toronto: {
+    name: 'Toronto',
+    domain: 'toronto.fyi',
+    tagline: 'The Six',
+    colors: {
+      primary: '#0369a1',
+      primaryLight: '#38bdf8',
+      primaryDark: '#075985',
+      accent: '#7dd3fc',
+      gradient: 'from-sky-800 to-sky-500',
+    },
+    coordinates: { lat: 43.6532, lng: -79.3832 },
+    timezone: 'America/Toronto',
+  },
+  vancouver: {
+    name: 'Vancouver',
+    domain: 'vancouver.fyi',
+    tagline: 'Pacific Jewel',
+    colors: {
+      primary: '#0d9488',
+      primaryLight: '#2dd4bf',
+      primaryDark: '#0f766e',
+      accent: '#5eead4',
+      gradient: 'from-teal-800 to-teal-500',
+    },
+    coordinates: { lat: 49.2827, lng: -123.1207 },
+    timezone: 'America/Vancouver',
+  },
 }
 
 export async function getCityFromHeaders(): Promise<CityId> {
@@ -53,5 +81,5 @@ export async function getCityFromHeaders(): Promise<CityId> {
 }
 
 export function validateCity(city: string): city is CityId {
-  return ['kingston', 'ottawa', 'montreal'].includes(city)
+  return ['kingston', 'ottawa', 'montreal', 'toronto', 'vancouver'].includes(city)
 }

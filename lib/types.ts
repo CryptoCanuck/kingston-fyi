@@ -1,5 +1,5 @@
 // City identifier type
-export type CityId = 'kingston' | 'ottawa' | 'montreal'
+export type CityId = 'kingston' | 'ottawa' | 'montreal' | 'toronto' | 'vancouver'
 
 // Frontend city configuration (not a DB table)
 export interface CityConfig {

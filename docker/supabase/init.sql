@@ -600,6 +600,16 @@ INSERT INTO cities (id, name, province, country, timezone, center, bounds, confi
     ST_SetSRID(ST_MakePoint(-73.5674, 45.5019), 4326)::geography,
     '{"north": 45.5800, "south": 45.4400, "east": -73.4800, "west": -73.6600}',
     '{"theme_color": "#7c3aed", "tagline": "La Métropole"}',
+    true),
+  ('toronto', 'Toronto', 'Ontario', 'CA', 'America/Toronto',
+    ST_SetSRID(ST_MakePoint(-79.3832, 43.6532), 4326)::geography,
+    '{"north": 43.8555, "south": 43.5810, "east": -79.1168, "west": -79.6393}',
+    '{"theme_color": "#0369a1", "tagline": "The Six"}',
+    true),
+  ('vancouver', 'Vancouver', 'British Columbia', 'CA', 'America/Vancouver',
+    ST_SetSRID(ST_MakePoint(-123.1207, 49.2827), 4326)::geography,
+    '{"north": 49.3170, "south": 49.1990, "east": -123.0234, "west": -123.2247}',
+    '{"theme_color": "#0d9488", "tagline": "Pacific Jewel"}',
     true);
 
 -- Place categories

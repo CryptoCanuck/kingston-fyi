@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const VALID_CITIES = ['kingston', 'ottawa', 'montreal'] as const
+const VALID_CITIES = ['kingston', 'ottawa', 'montreal', 'toronto', 'vancouver'] as const
 type City = (typeof VALID_CITIES)[number]
 
 const PROTECTED_PATHS = ['/profile', '/submit']
