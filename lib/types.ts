@@ -91,6 +91,11 @@ export interface Place {
   is_verified: boolean
   is_featured: boolean
   is_active: boolean
+  google_place_id: string | null
+  source_metadata: Record<string, unknown>
+  ai_enrichment: Record<string, unknown>
+  claimed_by: string | null
+  claim_status: 'unclaimed' | 'pending' | 'claimed'
   created_at: string
   updated_at: string
 }
@@ -140,6 +145,9 @@ export interface Review {
   images: Record<string, unknown>[]
   helpful_count: number
   is_verified: boolean
+  moderation_status: 'pending' | 'approved' | 'rejected' | 'flagged'
+  sentiment_score: number | null
+  moderation_metadata: Record<string, unknown>
   created_at: string
   updated_at: string
 }
@@ -158,6 +166,109 @@ export interface Submission {
   reviewer_id: string | null
   created_at: string
   updated_at: string
+}
+
+// DB table: news_sources
+export interface NewsSource {
+  id: string
+  city_id: string
+  name: string
+  url: string
+  type: 'rss' | 'scrape'
+  scrape_config: Record<string, unknown>
+  is_active: boolean
+  last_fetched_at: string | null
+  error_count: number
+  last_error: string | null
+  created_at: string
+  updated_at: string
+}
+
+// DB table: news_articles
+export interface NewsArticle {
+  id: string
+  city_id: string
+  source_id: string
+  title: string
+  summary: string | null
+  content: string | null
+  source_url: string
+  source_name: string
+  categories: string[]
+  thumbnail_url: string | null
+  sentiment: string | null
+  entities: {
+    businesses?: string[]
+    locations?: string[]
+    people?: string[]
+  }
+  is_duplicate: boolean
+  duplicate_of: string | null
+  published_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+// DB table: business_claims
+export interface BusinessClaim {
+  id: string
+  place_id: string
+  user_id: string
+  verification_method: 'phone' | 'email' | 'document'
+  verification_code: string | null
+  verification_expires_at: string | null
+  evidence_url: string | null
+  status: 'pending' | 'verified' | 'rejected' | 'expired'
+  reviewed_by: string | null
+  reviewed_at: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+// DB table: business_updates
+export interface BusinessUpdate {
+  id: string
+  place_id: string
+  user_id: string
+  field_changed: string
+  old_value: string | null
+  new_value: string | null
+  created_at: string
+}
+
+// DB table: review_responses
+export interface ReviewResponse {
+  id: string
+  review_id: string
+  user_id: string
+  content: string
+  created_at: string
+  updated_at: string
+}
+
+// DB table: notifications
+export interface Notification {
+  id: string
+  user_id: string
+  type: 'new_review' | 'claim_status' | 'news_mention' | 'admin_edit' | 'system'
+  title: string
+  body: string | null
+  metadata: Record<string, unknown>
+  is_read: boolean
+  created_at: string
+}
+
+// DB table: analytics_events
+export interface AnalyticsEvent {
+  id: string
+  city_id: string
+  event_type: 'page_view' | 'search' | 'click' | 'listing_view' | 'review_submit'
+  place_id: string | null
+  search_query: string | null
+  metadata: Record<string, unknown>
+  session_id: string | null
+  created_at: string
 }
 
 // API response types
