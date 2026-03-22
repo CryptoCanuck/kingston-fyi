@@ -337,6 +337,17 @@ async def search_google_for_business(request: GoogleSearchRequest):
     return result
 
 
+@app.post("/details/maps")
+async def get_maps_details(request: GoogleSearchRequest):
+    """Get detailed business info from Google Maps (clicks into the listing)."""
+    from scrapers.maps_details import get_place_details
+    try:
+        result = await get_place_details(request.business_name, request.city)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 def _resolve(src: str, base: str) -> str:
     """Resolve a relative URL against a base URL."""
     if not src:
