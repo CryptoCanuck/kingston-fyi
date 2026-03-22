@@ -1,0 +1,2 @@
+FROM kong:2.8.1
+COPY supabase/kong-resolved.yml /var/lib/kong/kong.yml

@@ -176,20 +176,20 @@ services:
 
   # Kong API Gateway
   supabase-kong:
-    image: kong:2.8.1
+    build:
+      context: .
+      dockerfile: Dockerfile.kong
     container_name: supabase-kong
     restart: unless-stopped
     ports:
       - "8000:8000"  # Expose API Gateway for local dev
-    volumes:
-      - ./supabase/kong.yml:/var/lib/kong/kong.yml
     depends_on:
       supabase-auth:
         condition: service_healthy
       supabase-rest:
-        condition: service_healthy
+        condition: service_started
       supabase-storage:
-        condition: service_healthy
+        condition: service_started
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
