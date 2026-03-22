@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 const VALID_CITIES = ['kingston', 'ottawa', 'montreal', 'toronto', 'vancouver'] as const
 type City = (typeof VALID_CITIES)[number]
 
-const PROTECTED_PATHS = ['/profile', '/submit']
+const PROTECTED_PATHS = ['/profile', '/submit', '/dashboard', '/claim', '/admin']
 
 function extractCityFromHost(host: string): City {
   const domain = host.split(':')[0].toLowerCase()

@@ -162,6 +162,14 @@ export default async function PlaceDetailPage({ params }: Props) {
               Verified
             </span>
           )}
+          {typedPlace.claim_status !== 'claimed' && (
+            <Link
+              href={`/claim/${typedPlace.id}`}
+              className="mt-1.5 inline-flex items-center rounded-full border border-city-primary px-3 py-1 text-xs font-medium text-city-primary hover:bg-city-primary hover:text-white transition-colors"
+            >
+              Claim This Business
+            </Link>
+          )}
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-4">
