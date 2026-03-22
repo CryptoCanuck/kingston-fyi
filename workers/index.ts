@@ -5,6 +5,7 @@ import { scrapingWorker } from './scraping/orchestrator'
 import { enrichmentWorker } from './scraping/enrichment'
 import { rssIngestWorker } from './news/rss-ingest'
 import { newsEnrichWorker } from './news/enrich'
+import { reviewModerationWorker } from './moderation/review'
 
 console.log('Starting FYI workers...')
 
@@ -32,15 +33,8 @@ const meiliSyncWorker = new Worker(
   { connection, concurrency: 5 }
 )
 
-// Moderation worker (placeholder — full implementation in Phase 6)
-const moderationWorker = new Worker(
-  QUEUE_NAMES.MODERATION,
-  async (job) => {
-    console.log(`Moderation job ${job.id}: ${job.data.type}`)
-    // Will be implemented in Phase 6
-  },
-  { connection, concurrency: 2 }
-)
+// Moderation worker — real implementation in workers/moderation/review.ts
+// reviewModerationWorker imported above handles MODERATION queue
 
 // Notification worker (placeholder — full implementation in Phase 5)
 const notificationsWorker = new Worker(
@@ -55,7 +49,7 @@ const notificationsWorker = new Worker(
 // Graceful shutdown
 const workers = [
   meiliSyncWorker,
-  moderationWorker,
+  reviewModerationWorker,
   notificationsWorker,
   scrapingWorker,
   enrichmentWorker,

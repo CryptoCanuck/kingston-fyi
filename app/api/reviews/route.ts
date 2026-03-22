@@ -8,6 +8,7 @@ import {
   validateParams,
   ValidationError,
 } from '@/lib/api/validate'
+import { enqueueModeration } from '@/lib/queues'
 
 const querySchema = z.object({
   place_id: z.string().uuid(),
@@ -77,6 +78,7 @@ export async function POST(request: NextRequest) {
         visit_date: body.visit_date,
         user_id: user.id,
         city_id: city,
+        moderation_status: 'pending',
       })
       .select()
       .single()
@@ -90,6 +92,11 @@ export async function POST(request: NextRequest) {
         )
       }
       return error('DB_ERROR', dbError.message, 500)
+    }
+
+    // Enqueue AI moderation
+    if (data && (body.content || body.title)) {
+      await enqueueModeration('review', data.id, `${body.title || ''} ${body.content || ''}`.trim())
     }
 
     return success(data)
