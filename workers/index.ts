@@ -3,6 +3,8 @@ import { connection } from './connection'
 import { QUEUE_NAMES } from './queues'
 import { scrapingWorker } from './scraping/orchestrator'
 import { enrichmentWorker } from './scraping/enrichment'
+import { rssIngestWorker } from './news/rss-ingest'
+import { newsEnrichWorker } from './news/enrich'
 
 console.log('Starting FYI workers...')
 
@@ -57,6 +59,8 @@ const workers = [
   notificationsWorker,
   scrapingWorker,
   enrichmentWorker,
+  rssIngestWorker,
+  newsEnrichWorker,
 ]
 
 async function shutdown() {
