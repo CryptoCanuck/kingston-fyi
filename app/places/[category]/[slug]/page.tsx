@@ -130,8 +130,38 @@ export default async function PlaceDetailPage({ params }: Props) {
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
     : null
 
+  // JSON-LD structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: typedPlace.name,
+    description: typedPlace.description,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: typedPlace.street_address,
+      addressLocality: typedPlace.city || config.name,
+      addressRegion: typedPlace.province,
+      postalCode: typedPlace.postal_code,
+      addressCountry: 'CA',
+    },
+    ...(typedPlace.phone && { telephone: typedPlace.phone }),
+    ...(typedPlace.website && { url: typedPlace.website }),
+    ...(typedPlace.rating > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: typedPlace.rating,
+        reviewCount: typedPlace.review_count,
+        bestRating: 5,
+      },
+    }),
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1 text-sm text-gray-500">
         <Link
