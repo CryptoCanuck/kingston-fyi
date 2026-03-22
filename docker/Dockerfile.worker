@@ -9,7 +9,30 @@ COPY package.json package-lock.json tsconfig.json ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY lib/ ./lib/
 COPY workers/ ./workers/
-RUN npx tsc --outDir dist --rootDir . --esModuleInterop --module commonjs --target es2022 --moduleResolution node --resolveJsonModule --skipLibCheck --declaration false workers/index.ts workers/queues.ts workers/connection.ts lib/meilisearch.ts lib/ai.ts lib/queues.ts
+
+# Compile all worker and lib TypeScript files
+RUN npx tsc \
+  --outDir dist \
+  --rootDir . \
+  --esModuleInterop \
+  --module commonjs \
+  --target es2022 \
+  --moduleResolution node \
+  --resolveJsonModule \
+  --skipLibCheck \
+  --declaration false \
+  --strict false \
+  workers/index.ts \
+  workers/queues.ts \
+  workers/connection.ts \
+  workers/scraping/orchestrator.ts \
+  workers/scraping/enrichment.ts \
+  workers/news/rss-ingest.ts \
+  workers/news/enrich.ts \
+  workers/moderation/review.ts \
+  lib/meilisearch.ts \
+  lib/ai.ts \
+  lib/queues.ts
 
 FROM node:20-alpine AS runner
 WORKDIR /app

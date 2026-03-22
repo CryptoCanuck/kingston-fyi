@@ -163,70 +163,49 @@ export default async function PlaceDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1 text-sm text-gray-500">
-        <Link
-          href="/places"
-          className="hover:text-city-primary transition-colors"
-        >
-          Places
-        </Link>
+      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1 text-sm text-gray-400">
+        <Link href="/places" className="hover:text-[var(--city-primary)] transition-colors">Places</Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <Link
-          href={`/places/${categorySlug}`}
-          className="hover:text-city-primary transition-colors"
-        >
-          {categoryName}
-        </Link>
+        <Link href={`/places/${categorySlug}`} className="hover:text-[var(--city-primary)] transition-colors">{categoryName}</Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-gray-900">{typedPlace.name}</span>
+        <span className="text-gray-700 font-medium">{typedPlace.name}</span>
       </nav>
 
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex flex-wrap items-start gap-3">
-          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-            {typedPlace.name}
-          </h1>
-          {typedPlace.is_verified && (
-            <span className="mt-1.5 inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">
-              Verified
-            </span>
-          )}
-          {typedPlace.claim_status !== 'claimed' && (
-            <Link
-              href={`/claim/${typedPlace.id}`}
-              className="mt-1.5 inline-flex items-center rounded-full border border-city-primary px-3 py-1 text-xs font-medium text-city-primary hover:bg-city-primary hover:text-white transition-colors"
-            >
-              Claim This Business
-            </Link>
-          )}
+      {/* Hero Header */}
+      <div className="card overflow-hidden mb-8">
+        <div className="relative h-48 sm:h-64 city-gradient flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/10" />
+          <div className="relative text-center text-white px-6">
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl drop-shadow-md">
+              {typedPlace.name}
+            </h1>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
+              <span className="badge bg-white/20 text-white backdrop-blur-sm">{categoryName}</span>
+              {typedPlace.is_verified && <span className="badge badge-success">Verified</span>}
+              {typedPlace.claim_status !== 'claimed' && (
+                <Link href={`/claim/${typedPlace.id}`} className="badge bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 transition-colors">
+                  Claim This Business
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-4">
-          <Link
-            href={`/places/${categorySlug}`}
-            className="inline-flex items-center rounded-full bg-city-primary/10 px-3 py-1 text-sm font-medium text-city-primary"
-          >
-            {categoryName}
-          </Link>
-
-          <div className="flex items-center gap-1">
-            <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
-            <span className="font-semibold text-gray-900">
-              {formatRating(typedPlace.rating)}
+        {/* Quick stats bar */}
+        <div className="flex items-center justify-between px-6 py-4 bg-white border-t border-gray-100">
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 rounded-lg bg-amber-50 px-2.5 py-1">
+              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+              <span className="font-bold text-amber-700">{formatRating(typedPlace.rating)}</span>
+            </div>
+            <span className="text-sm text-gray-500">
+              ({typedPlace.review_count} {typedPlace.review_count === 1 ? 'review' : 'reviews'})
             </span>
-            {typedPlace.review_count > 0 && (
-              <span className="text-sm text-gray-500">
-                ({typedPlace.review_count}{' '}
-                {typedPlace.review_count === 1 ? 'review' : 'reviews'})
-              </span>
-            )}
           </div>
-
           {typedPlace.price_range && (
-            <div className="flex items-center gap-1 text-sm text-gray-600">
+            <div className="flex items-center gap-1.5 text-sm text-gray-500">
               <DollarSign className="h-4 w-4" />
-              {typedPlace.price_range}
+              <span className="font-medium">{typedPlace.price_range}</span>
             </div>
           )}
         </div>
@@ -234,75 +213,54 @@ export default async function PlaceDetailPage({ params }: Props) {
 
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Main content */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
           {/* Description */}
           {typedPlace.description && (
-            <section>
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                About
-              </h2>
-              <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                {typedPlace.description}
-              </p>
-            </section>
+            <div className="card p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-3">About</h2>
+              <p className="text-gray-600 leading-relaxed whitespace-pre-line">{typedPlace.description}</p>
+            </div>
           )}
 
           {/* Features & Amenities */}
-          {(typedPlace.features.length > 0 ||
-            typedPlace.amenities.length > 0) && (
-            <section>
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                Features & Amenities
-              </h2>
+          {(typedPlace.features.length > 0 || typedPlace.amenities.length > 0) && (
+            <div className="card p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-3">Features & Amenities</h2>
               <div className="flex flex-wrap gap-2">
-                {[...typedPlace.features, ...typedPlace.amenities].map(
-                  (item) => (
-                    <span
-                      key={item}
-                      className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
-                    >
-                      {item}
-                    </span>
-                  )
-                )}
+                {[...typedPlace.features, ...typedPlace.amenities].map((item) => (
+                  <span key={item} className="badge bg-[var(--city-surface)] text-[var(--city-primary)]">{item}</span>
+                ))}
               </div>
-            </section>
+            </div>
           )}
 
           {/* Hours */}
           {typedPlace.hours && Object.keys(typedPlace.hours).length > 0 && (
-            <section>
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 mb-3">
-                <Clock className="h-5 w-5" />
+            <div className="card p-6">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-3">
+                <Clock className="h-5 w-5 text-[var(--city-primary)]" />
                 Hours
               </h2>
-              <div className="rounded-lg border border-gray-100 bg-white p-4">
-                {renderHours(typedPlace.hours)}
-              </div>
-            </section>
+              {renderHours(typedPlace.hours)}
+            </div>
           )}
         </div>
 
         {/* Sidebar */}
         <aside className="space-y-6">
           {/* Contact info card */}
-          <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm space-y-4">
-            <h2 className="font-semibold text-gray-900">Contact & Location</h2>
+          <div className="card p-6 space-y-4">
+            <h2 className="font-bold text-gray-900">Contact & Location</h2>
 
             {address && (
               <div className="flex items-start gap-3 text-sm">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--city-primary)]" />
                 <div>
                   <p className="text-gray-700">{address}</p>
                   {mapsUrl && (
-                    <a
-                      href={mapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 inline-flex items-center gap-1 text-city-primary hover:underline"
-                    >
-                      View on Google Maps
-                      <ExternalLink className="h-3 w-3" />
+                    <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
+                      className="mt-1 inline-flex items-center gap-1 text-[var(--city-primary)] hover:underline text-xs">
+                      View on Google Maps <ExternalLink className="h-3 w-3" />
                     </a>
                   )}
                 </div>
@@ -311,67 +269,52 @@ export default async function PlaceDetailPage({ params }: Props) {
 
             {typedPlace.phone && (
               <div className="flex items-center gap-3 text-sm">
-                <Phone className="h-4 w-4 shrink-0 text-gray-400" />
-                <a
-                  href={`tel:${typedPlace.phone}`}
-                  className="text-gray-700 hover:text-city-primary"
-                >
-                  {typedPlace.phone}
-                </a>
+                <Phone className="h-4 w-4 shrink-0 text-[var(--city-primary)]" />
+                <a href={`tel:${typedPlace.phone}`} className="text-gray-700 hover:text-[var(--city-primary)]">{typedPlace.phone}</a>
               </div>
             )}
 
             {typedPlace.email && (
               <div className="flex items-center gap-3 text-sm">
-                <Mail className="h-4 w-4 shrink-0 text-gray-400" />
-                <a
-                  href={`mailto:${typedPlace.email}`}
-                  className="text-gray-700 hover:text-city-primary"
-                >
-                  {typedPlace.email}
-                </a>
+                <Mail className="h-4 w-4 shrink-0 text-[var(--city-primary)]" />
+                <a href={`mailto:${typedPlace.email}`} className="text-gray-700 hover:text-[var(--city-primary)]">{typedPlace.email}</a>
               </div>
             )}
 
             {typedPlace.website && (
               <div className="flex items-center gap-3 text-sm">
-                <Globe className="h-4 w-4 shrink-0 text-gray-400" />
-                <a
-                  href={typedPlace.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-city-primary hover:underline truncate"
-                >
+                <Globe className="h-4 w-4 shrink-0 text-[var(--city-primary)]" />
+                <a href={typedPlace.website} target="_blank" rel="noopener noreferrer"
+                  className="text-[var(--city-primary)] hover:underline truncate">
                   {typedPlace.website.replace(/^https?:\/\//, '')}
                 </a>
               </div>
             )}
           </div>
 
-          {/* Map placeholder */}
-          {mapsUrl && (
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block overflow-hidden rounded-xl border border-gray-100 bg-gradient-to-br from-gray-50 to-gray-100 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <div className="flex h-48 flex-col items-center justify-center gap-2 text-gray-400">
-                <MapPin className="h-8 w-8" />
-                <span className="text-sm font-medium">
-                  Open in Google Maps
-                </span>
-              </div>
-            </a>
-          )}
+          {/* Map */}
+          <div className="card overflow-hidden">
+            <div className="h-64 bg-gradient-to-br from-[var(--city-surface)] to-gray-100 flex items-center justify-center">
+              {mapsUrl ? (
+                <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 text-gray-400 hover:text-[var(--city-primary)] transition-colors">
+                  <MapPin className="h-8 w-8" />
+                  <span className="text-sm font-medium">Open in Google Maps</span>
+                </a>
+              ) : (
+                <MapPin className="h-8 w-8 text-gray-300" />
+              )}
+            </div>
+          </div>
         </aside>
       </div>
 
       {/* Reviews section */}
       <section className="mt-12">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Reviews</h2>
-        <div className="space-y-8">
-          <ReviewForm placeId={typedPlace.id} cityId={city} />
+        <h2 className="section-title mb-6">Reviews</h2>
+        <div className="space-y-6">
+          <div className="card p-6">
+            <ReviewForm placeId={typedPlace.id} cityId={city} />
+          </div>
           <ReviewList placeId={typedPlace.id} cityId={city} />
         </div>
       </section>

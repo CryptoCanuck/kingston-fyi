@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Calendar, Search, Menu, X, Newspaper, LayoutDashboard } from 'lucide-react'
 import { UserMenu } from '@/components/auth/user-menu'
+import { NotificationBell } from '@/components/layout/notification-bell'
 
 const navLinks = [
   { href: '/places', label: 'Places', icon: MapPin },
@@ -51,7 +52,8 @@ export function Header({ cityName, cityTagline }: HeaderProps) {
                 {label}
               </Link>
             ))}
-            <div className="ml-3 pl-3 border-l border-white/15">
+            <div className="ml-3 pl-3 border-l border-white/15 flex items-center gap-2">
+              <NotificationBell />
               <UserMenu />
             </div>
           </nav>
