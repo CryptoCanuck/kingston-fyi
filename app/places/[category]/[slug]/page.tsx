@@ -173,8 +173,19 @@ export default async function PlaceDetailPage({ params }: Props) {
 
       {/* Hero Header */}
       <div className="card overflow-hidden mb-8">
-        <div className="relative h-48 sm:h-64 city-gradient flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/10" />
+        <div className="relative h-48 sm:h-64 city-gradient flex items-center justify-center overflow-hidden">
+          {typedPlace.images && Array.isArray(typedPlace.images) && typedPlace.images.length > 0 && (typedPlace.images[0] as { url?: string }).url ? (
+            <>
+              <img
+                src={(typedPlace.images[0] as { url: string }).url}
+                alt={typedPlace.name}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-black/10" />
+          )}
           <div className="relative text-center text-white px-6">
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl drop-shadow-md">
               {typedPlace.name}
@@ -214,6 +225,25 @@ export default async function PlaceDetailPage({ params }: Props) {
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Main content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Photo Gallery */}
+          {typedPlace.images && Array.isArray(typedPlace.images) && typedPlace.images.length > 1 && (
+            <div className="card p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-3">Photos</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {(typedPlace.images as { url: string; alt?: string }[]).slice(0, 6).map((img, i) => (
+                  <div key={i} className="aspect-square rounded-xl overflow-hidden bg-gray-100">
+                    <img
+                      src={img.url}
+                      alt={img.alt || `${typedPlace.name} photo ${i + 1}`}
+                      className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Description */}
           {typedPlace.description && (
             <div className="card p-6">
@@ -288,6 +318,26 @@ export default async function PlaceDetailPage({ params }: Props) {
                   className="text-[var(--city-primary)] hover:underline truncate">
                   {typedPlace.website.replace(/^https?:\/\//, '')}
                 </a>
+              </div>
+            )}
+
+            {/* Social Media Links */}
+            {typedPlace.social_media && Object.keys(typedPlace.social_media).length > 0 && (
+              <div className="pt-3 mt-3 border-t border-gray-100">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Social</p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(typedPlace.social_media).map(([platform, url]) => (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="badge bg-gray-100 text-gray-600 hover:bg-[var(--city-surface)] hover:text-[var(--city-primary)] transition-colors capitalize"
+                    >
+                      {platform}
+                    </a>
+                  ))}
+                </div>
               </div>
             )}
           </div>

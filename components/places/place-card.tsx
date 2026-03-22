@@ -21,9 +21,18 @@ export function PlaceCard({ place, categorySlug, className }: PlaceCardProps) {
     >
       {/* Image area */}
       <div className="relative aspect-[16/10] bg-gradient-to-br from-[var(--city-surface)] to-gray-100 flex items-center justify-center overflow-hidden">
-        <div className="flex flex-col items-center gap-2 text-[var(--city-primary)]/20">
-          <MapPin className="h-12 w-12 opacity-30" />
-        </div>
+        {place.images && Array.isArray(place.images) && place.images.length > 0 && (place.images[0] as { url?: string }).url ? (
+          <img
+            src={(place.images[0] as { url: string }).url}
+            alt={place.name}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex flex-col items-center gap-2 text-[var(--city-primary)]/20">
+            <MapPin className="h-12 w-12 opacity-30" />
+          </div>
+        )}
         {/* Category badge */}
         <div className="absolute top-3 left-3">
           <span className="badge badge-primary backdrop-blur-sm">
