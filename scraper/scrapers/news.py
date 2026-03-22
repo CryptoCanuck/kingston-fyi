@@ -1,7 +1,7 @@
 """News article scraper using Scrapling."""
 import asyncio
 from typing import List
-from scrapling import StealthCrawler
+from scrapling import StealthyFetcher
 from models import NewsArticleScraped
 
 
@@ -33,8 +33,8 @@ async def scrape_news(
     thumb_sel = config.get("thumbnail_selector", "img")
 
     try:
-        crawler = StealthCrawler()
-        page = await asyncio.to_thread(crawler.fetch, url)
+        fetcher = StealthyFetcher()
+        page = await asyncio.to_thread(fetcher.fetch, url)
 
         if not page or page.status != 200:
             errors.append(f"Failed to fetch {url}: status {getattr(page, 'status', 'unknown')}")
