@@ -42,3 +42,7 @@ docker/.env
 .idea/
 *.swp
 *.swo
+
+# Local dev secrets / media
+.dev-secrets-tmp/
+/media

@@ -1,0 +1,24 @@
+# Local development services for Kingston.FYI.
+# Postgres + PostGIS only — production uses Railway's managed Postgres/PostGIS.
+# Host port 5434 is used deliberately (5432/5433 are occupied by other projects on this machine).
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: kingston-postgis
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kingston
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kingston_dev}
+      POSTGRES_DB: kingston_fyi
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - kingston_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kingston -d kingston_fyi"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  kingston_pgdata:
