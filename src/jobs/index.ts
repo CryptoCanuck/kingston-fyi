@@ -3,8 +3,14 @@ import type { RunJobAccess } from 'payload'
 import type { User } from '../payload-types'
 import { isAdminUser } from '../access/isAdmin'
 import { heartbeatTask } from './heartbeat'
+import { seedDirectoryTask } from './seedDirectory'
+import { checkStalenessTask } from './checkStaleness'
+import { dedupFlagTask } from './dedupFlag'
 
 export { heartbeatTask } from './heartbeat'
+export { seedDirectoryTask, runSeedDirectory } from './seedDirectory'
+export { checkStalenessTask, runCheckStaleness } from './checkStaleness'
+export { dedupFlagTask, runDedupFlag } from './dedupFlag'
 export {
   ingestDraftDefaults,
   INGEST_DEFAULT_STATUS,
@@ -12,7 +18,7 @@ export {
 } from './draftDefaults'
 
 /** All Jobs Queue tasks (AR20). Add new pipeline tasks here. */
-export const jobTasks = [heartbeatTask]
+export const jobTasks = [heartbeatTask, seedDirectoryTask, checkStalenessTask, dedupFlagTask]
 
 /**
  * Who may trigger queue runs (AR20). Admin/operator staff via the Local API, OR the

@@ -190,7 +190,47 @@ export const Businesses: CollectionConfig = {
       ],
     },
     pointField(),
-    provenanceField(),
+    // Listing lifecycle (FR58). Set from Google's businessStatus on seed/refresh; the
+    // check-staleness job flips listings to `stale-unverified` when their source data ages.
+    {
+      name: 'lifecycleStatus',
+      type: 'select',
+      defaultValue: 'active',
+      index: true,
+      options: [
+        { label: 'Active', value: 'active' },
+        { label: 'Temporarily closed', value: 'temporarily-closed' },
+        { label: 'Permanently closed', value: 'permanently-closed' },
+        { label: 'Stale — unverified', value: 'stale-unverified' },
+      ],
+      admin: { position: 'sidebar', description: 'Operational lifecycle state (FR58).' },
+    },
+    // Google Place ID — the dedup/refresh key. A re-seed matches on this so it refreshes a
+    // listing in place rather than ever building a second frozen copy (AR22).
+    {
+      name: 'placeId',
+      type: 'text',
+      index: true,
+      admin: { position: 'sidebar', description: 'Google Place ID (re-seed / refresh key).' },
+    },
+    // Duplicate-detection flags (FR58). The dedup-flag job sets these; the operator merge
+    // action lands in Epic 5 (preserving cross-links).
+    {
+      name: 'directoryFlags',
+      type: 'group',
+      admin: { position: 'sidebar', description: 'Operator review flags.' },
+      fields: [
+        { name: 'flaggedDuplicate', type: 'checkbox', defaultValue: false },
+        {
+          name: 'duplicateCandidate',
+          type: 'relationship',
+          relationTo: 'businesses',
+          hasMany: false,
+          admin: { description: 'Likely-duplicate listing flagged for operator merge.' },
+        },
+      ],
+    },
+    provenanceField({ defaultSource: 'operator' }),
     statusField(),
     cityField(),
   ],

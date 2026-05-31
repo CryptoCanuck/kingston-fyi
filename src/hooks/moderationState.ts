@@ -11,8 +11,12 @@ import type { ModerationStatus } from '../fields/statusField'
  * snapshot/diff behaviour is completed in Epic 5 (Story 5.6); this is the primitive.
  */
 export const reModerateOnEdit = (): CollectionBeforeChangeHook => {
-  return ({ data, originalDoc, operation, req }) => {
+  return ({ data, originalDoc, operation, req, context }) => {
     if (operation !== 'update' || !originalDoc) return data
+
+    // Automated refreshes (e.g. the directory re-seed job) are trusted system writes and
+    // must NOT bounce an operator-approved listing back to pending. They pass this flag.
+    if (context?.skipReModeration) return data
 
     const isStaff = Boolean(req.user) // refined to role-based in Epic 5
     const wasPublic = (['approved', 'published'] as ModerationStatus[]).includes(

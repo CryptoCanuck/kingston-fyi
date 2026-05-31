@@ -117,6 +117,9 @@ export interface Config {
   jobs: {
     tasks: {
       heartbeat: TaskHeartbeat;
+      'seed-directory': TaskSeedDirectory;
+      'check-staleness': TaskCheckStaleness;
+      'dedup-flag': TaskDedupFlag;
       inline: {
         input: unknown;
         output: unknown;
@@ -400,6 +403,24 @@ export interface Business {
    */
   location?: [number, number] | null;
   /**
+   * Operational lifecycle state (FR58).
+   */
+  lifecycleStatus?: ('active' | 'temporarily-closed' | 'permanently-closed' | 'stale-unverified') | null;
+  /**
+   * Google Place ID (re-seed / refresh key).
+   */
+  placeId?: string | null;
+  /**
+   * Operator review flags.
+   */
+  directoryFlags?: {
+    flaggedDuplicate?: boolean | null;
+    /**
+     * Likely-duplicate listing flagged for operator merge.
+     */
+    duplicateCandidate?: (string | null) | Business;
+  };
+  /**
    * Data provenance (FR56). Controls what re-seeding may overwrite.
    */
   provenance: {
@@ -549,7 +570,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'heartbeat';
+        taskSlug: 'inline' | 'heartbeat' | 'seed-directory' | 'check-staleness' | 'dedup-flag';
         taskID: string;
         input?:
           | {
@@ -582,7 +603,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'heartbeat') | null;
+  taskSlug?: ('inline' | 'heartbeat' | 'seed-directory' | 'check-staleness' | 'dedup-flag') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -832,6 +853,14 @@ export interface BusinessesSelect<T extends boolean = true> {
   rating?: T;
   reviewCount?: T;
   location?: T;
+  lifecycleStatus?: T;
+  placeId?: T;
+  directoryFlags?:
+    | T
+    | {
+        flaggedDuplicate?: T;
+        duplicateCandidate?: T;
+      };
   provenance?:
     | T
     | {
@@ -987,6 +1016,43 @@ export interface TaskHeartbeat {
   output: {
     ranAt?: string | null;
     ingestStatus?: string | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSeed-directory".
+ */
+export interface TaskSeedDirectory {
+  input: {
+    maxPerQuery?: number | null;
+  };
+  output: {
+    discovered?: number | null;
+    created?: number | null;
+    updated?: number | null;
+    skipped?: number | null;
+    configured?: boolean | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskCheck-staleness".
+ */
+export interface TaskCheckStaleness {
+  input?: unknown;
+  output: {
+    flagged?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskDedup-flag".
+ */
+export interface TaskDedupFlag {
+  input?: unknown;
+  output: {
+    scanned?: number | null;
+    flagged?: number | null;
   };
 }
 /**

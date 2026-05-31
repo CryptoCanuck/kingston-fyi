@@ -71,7 +71,7 @@ development_status:
   2-5-geospatial-search-sort: backlog
   2-6-interactive-map-with-list-sync: backlog
   2-7-mobile-directory-experience: backlog
-  2-8-google-places-directory-seeding-lifecycle-dedup: backlog
+  2-8-google-places-directory-seeding-lifecycle-dedup: done
   epic-2-retrospective: optional
 
   # ---------- Epic 3: Events ----------

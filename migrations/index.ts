@@ -5,6 +5,7 @@ import * as migration_20260531_180348_taxonomies from './20260531_180348_taxonom
 import * as migration_20260531_183432_jobs_queue from './20260531_183432_jobs_queue';
 import * as migration_20260531_190531_businesses from './20260531_190531_businesses';
 import * as migration_20260531_191257_reviews from './20260531_191257_reviews';
+import * as migration_20260531_194507_directory_seeding_fields from './20260531_194507_directory_seeding_fields';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20260531_191257_reviews.up,
     down: migration_20260531_191257_reviews.down,
-    name: '20260531_191257_reviews'
+    name: '20260531_191257_reviews',
+  },
+  {
+    up: migration_20260531_194507_directory_seeding_fields.up,
+    down: migration_20260531_194507_directory_seeding_fields.down,
+    name: '20260531_194507_directory_seeding_fields'
   },
 ];
