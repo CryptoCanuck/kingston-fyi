@@ -11,16 +11,18 @@ export const crossLinkField = (opts: {
   hasMany?: boolean
   label?: string
   description?: string
-}): RelationshipField => ({
-  name: opts.name,
-  type: 'relationship',
-  relationTo: opts.relationTo as RelationshipField['relationTo'],
-  hasMany: opts.hasMany ?? true,
-  label: opts.label,
-  admin: {
-    description: opts.description ?? 'Typed cross-link. Reverse links are derived, never stored.',
-  },
-})
+}): RelationshipField =>
+  ({
+    name: opts.name,
+    type: 'relationship',
+    relationTo: opts.relationTo,
+    hasMany: opts.hasMany ?? true,
+    label: opts.label,
+    admin: {
+      description:
+        opts.description ?? 'Typed cross-link. Reverse links are derived, never stored.',
+    },
+  }) as RelationshipField
 
 /**
  * Derive reverse cross-links: find documents in `fromCollection` whose `viaField`

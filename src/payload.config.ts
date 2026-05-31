@@ -13,6 +13,7 @@ import { Neighbourhoods } from './collections/Neighbourhoods'
 import { NewsCategories } from './collections/NewsCategories'
 import { EventCategories } from './collections/EventCategories'
 import { BusinessCategories } from './collections/BusinessCategories'
+import { canRunJobs, jobTasks } from './jobs'
 import { seed } from './lib/seed'
 
 const filename = fileURLToPath(import.meta.url)
@@ -36,6 +37,17 @@ export default buildConfig({
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
+  // Background automation (AR20). Tasks live in src/jobs/; autoRun runs the queue on the
+  // persistent Railway host on a cron, and the /api/payload-jobs/run Route Handler lets an
+  // external cron trigger a run on demand (CRON_SECRET-guarded). Queue runs are restricted
+  // to admin/operator staff (canRunJobs); the cron handler authenticates then overrides.
+  jobs: {
+    tasks: jobTasks,
+    access: { run: canRunJobs },
+    autoRun: [{ cron: '*/5 * * * *', queue: 'default' }],
+    // Skip autoRun outside a persistent host (e.g. local/test/serverless) to avoid noise.
+    shouldAutoRun: async () => process.env.ENABLE_JOBS_AUTORUN === 'true',
+  },
   // Ensure the launch city + shared taxonomies exist on a fresh DB.
   onInit: async (payload) => {
     await seed(payload)
