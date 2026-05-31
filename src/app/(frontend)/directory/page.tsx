@@ -9,6 +9,7 @@ import { PUBLIC_STATUSES } from '@/fields/statusField'
 import { BusinessCard, type BusinessCardItem } from '@/components/directory/BusinessCard'
 import { DirFilters } from '@/components/directory/DirFilters'
 import { SortSelect } from '@/components/directory/SortSelect'
+import { ActiveChips } from '@/components/directory/ActiveChips'
 import { Icon } from '@/components/ui'
 import {
   buildCategoryTree,
@@ -82,6 +83,15 @@ export default async function DirectoryPage({
     .map((n) => ({ slug: n.slug ?? '', name: n.name ?? '' }))
     .filter((n) => n.slug)
 
+  // Slug→name maps so active-filter chips show readable labels.
+  const catLabels = Object.fromEntries(
+    (categoriesRes.docs as { slug?: string | null; name?: string | null }[]).map((c) => [
+      c.slug ?? '',
+      c.name ?? '',
+    ]),
+  )
+  const hoodLabels = Object.fromEntries(neighbourhoods.map((h) => [h.slug, h.name]))
+
   const now = new Date()
   const filtered = all.filter((b) => matchesBusiness(b, filters, now))
   const sorted = sortBusinesses(filtered, filters.sort)
@@ -125,6 +135,8 @@ export default async function DirectoryPage({
               </div>
               <SortSelect />
             </div>
+
+            <ActiveChips catLabels={catLabels} hoodLabels={hoodLabels} />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {pageItems.map((b) => (
