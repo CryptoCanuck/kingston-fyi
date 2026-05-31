@@ -23,9 +23,9 @@ const DirectoryMapImpl = dynamic(() => import('./DirectoryMapImpl'), {
   loading: () => <Fallback label="Loading map…" />,
 })
 
-export const DirectoryMap = ({ pins }: { pins: MapPin[] }) => {
+export const DirectoryMap = ({ pins, hrefBase }: { pins: MapPin[]; hrefBase?: string }) => {
   if (!process.env.NEXT_PUBLIC_MAPTILER_KEY) {
     return <Fallback label="Map unavailable" />
   }
-  return <DirectoryMapImpl pins={pins} />
+  return <DirectoryMapImpl pins={pins} hrefBase={hrefBase} />
 }

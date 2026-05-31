@@ -45,7 +45,13 @@ const cardEl = (id: string): HTMLElement | null =>
  * routes to the detail page on pin click, and keeps a shared hover state in sync between the
  * list cards and their map pins.
  */
-export default function DirectoryMapImpl({ pins }: { pins: MapPin[] }) {
+export default function DirectoryMapImpl({
+  pins,
+  hrefBase = '/business',
+}: {
+  pins: MapPin[]
+  hrefBase?: string
+}) {
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
@@ -133,7 +139,7 @@ export default function DirectoryMapImpl({ pins }: { pins: MapPin[] }) {
       el.addEventListener('mouseleave', () => setActive(null))
       el.addEventListener('click', (e) => {
         e.preventDefault()
-        router.push(`/business/${pin.slug ?? pin.id}`)
+        router.push(`${hrefBase}/${pin.slug ?? pin.id}`)
       })
       const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([pin.lng, pin.lat])
@@ -150,7 +156,7 @@ export default function DirectoryMapImpl({ pins }: { pins: MapPin[] }) {
     }
     // pinsKey captures the meaningful change in `pins`; router/setActive are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pinsKey, router, setActive])
+  }, [pinsKey, router, setActive, hrefBase])
 
   return <div ref={containerRef} className="kf-map-canvas" />
 }
