@@ -134,8 +134,28 @@ export default async function BusinessDetailPage({
   const summary = summarizeReviews(allReviews)
   const displayReviews = allReviews.slice(0, 8)
 
-  // Events arrive in Epic 3 — until the collection exists, the venue rail is simply empty.
-  const venueEvents: VenueEvent[] = []
+  // Upcoming events hosted at this venue (FR38). Future, published, city-scoped, soonest first.
+  const venueEventsRes = await payload.find({
+    collection: 'events',
+    where: {
+      and: [
+        { venue: { equals: business.id } },
+        { status: { in: PUBLIC_STATUSES } },
+        { startsAt: { greater_than_equal: new Date().toISOString() } },
+      ],
+    },
+    sort: 'startsAt',
+    depth: 0,
+    limit: 6,
+    overrideAccess: true,
+  })
+  const venueEvents: VenueEvent[] = (venueEventsRes.docs as unknown as {
+    id: string
+    slug?: string | null
+    title: string
+    startsAt?: string | null
+    blurb?: string | null
+  }[]).map((e) => ({ id: e.id, slug: e.slug, title: e.title, startsAt: e.startsAt, summary: e.blurb }))
 
   const metaBits = [category?.name, priceTier, neighbourhood?.name].filter(Boolean) as string[]
 
