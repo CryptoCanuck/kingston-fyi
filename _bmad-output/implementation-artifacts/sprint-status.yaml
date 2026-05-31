@@ -75,12 +75,12 @@ development_status:
   epic-2-retrospective: optional
 
   # ---------- Epic 3: Events ----------
-  epic-3: in-progress
+  epic-3: done
   3-1-event-entity-venue-cross-link-structured-data: done
   3-2-events-list-with-time-buckets-filters: done
   3-3-calendar-view: done
   3-4-event-detail-with-map-ics-venue-link: done
-  3-5-event-aggregation-seeding: backlog
+  3-5-event-aggregation-seeding: done
   epic-3-retrospective: optional
 
   # ---------- Epic 4: Local News ----------
