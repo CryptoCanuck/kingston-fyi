@@ -7,12 +7,14 @@ import { seedDirectoryTask } from './seedDirectory'
 import { checkStalenessTask } from './checkStaleness'
 import { dedupFlagTask } from './dedupFlag'
 import { aggregateEventsTask } from './aggregateEvents'
+import { aggregatePressReleasesTask } from './aggregatePressReleases'
 
 export { heartbeatTask } from './heartbeat'
 export { seedDirectoryTask, runSeedDirectory } from './seedDirectory'
 export { checkStalenessTask, runCheckStaleness } from './checkStaleness'
 export { dedupFlagTask, runDedupFlag } from './dedupFlag'
 export { aggregateEventsTask, runAggregateEvents } from './aggregateEvents'
+export { aggregatePressReleasesTask, runAggregatePressReleases } from './aggregatePressReleases'
 export {
   ingestDraftDefaults,
   INGEST_DEFAULT_STATUS,
@@ -26,6 +28,7 @@ export const jobTasks = [
   checkStalenessTask,
   dedupFlagTask,
   aggregateEventsTask,
+  aggregatePressReleasesTask,
 ]
 
 /**
