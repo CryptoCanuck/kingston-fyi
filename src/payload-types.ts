@@ -125,6 +125,10 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
+  /**
+   * admin/operator staff the CMS; business-owner manages claimed listings only.
+   */
+  roles: ('admin' | 'operator' | 'business-owner')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -275,6 +279,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  roles?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
