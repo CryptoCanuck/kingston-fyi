@@ -3,7 +3,7 @@
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 export interface MapPin {
   id: string
@@ -36,19 +36,41 @@ function createPinEl(pin: MapPin): HTMLButtonElement {
   return el
 }
 
+const cardEl = (id: string): HTMLElement | null =>
+  document.querySelector(`.kf-dir-list [data-business-id="${id}"]`)
+
 /**
  * Default-exported so the wrapper can `next/dynamic`-load it (ssr: false) — keeps MapLibre's
  * WebGL bundle out of the initial JS (NFR2). Plots one marker per result, frames them in view,
- * and routes to the detail page on pin click. List⇄map hover sync is layered on in a follow-up.
+ * routes to the detail page on pin click, and keeps a shared hover state in sync between the
+ * list cards and their map pins.
  */
 export default function DirectoryMapImpl({ pins }: { pins: MapPin[] }) {
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markersRef = useRef<maplibregl.Marker[]>([])
+  const markerElsRef = useRef<Map<string, HTMLElement>>(new Map())
+  const activeIdRef = useRef<string | null>(null)
 
   // Stable key so the marker effect only re-runs when the result set actually changes.
   const pinsKey = pins.map((p) => p.id).join(',')
+
+  // Single source of truth for the shared list⇄map hover highlight. Reads refs only, so it's
+  // stable across renders and safe to wire into both marker and list event listeners.
+  const setActive = useCallback((id: string | null) => {
+    const prev = activeIdRef.current
+    if (prev === id) return
+    if (prev) {
+      markerElsRef.current.get(prev)?.classList.remove('is-active')
+      cardEl(prev)?.classList.remove('is-hovered')
+    }
+    activeIdRef.current = id
+    if (id) {
+      markerElsRef.current.get(id)?.classList.add('is-active')
+      cardEl(id)?.classList.add('is-hovered')
+    }
+  }, [])
 
   // Initialise the map once.
   useEffect(() => {
@@ -68,12 +90,36 @@ export default function DirectoryMapImpl({ pins }: { pins: MapPin[] }) {
     }
   }, [])
 
+  // Hovering a list card highlights its pin (and vice-versa). Delegated on the list container
+  // so it survives pagination re-renders; the list element is server-rendered and stable.
+  useEffect(() => {
+    const list = document.querySelector('.kf-dir-list')
+    if (!list) return
+    const onOver = (e: Event) => {
+      const card = (e.target as HTMLElement).closest('[data-business-id]')
+      if (card) setActive(card.getAttribute('data-business-id'))
+    }
+    const onOut = (e: Event) => {
+      const card = (e.target as HTMLElement).closest('[data-business-id]')
+      const related = (e as MouseEvent).relatedTarget as Node | null
+      if (card && (!related || !card.contains(related))) setActive(null)
+    }
+    list.addEventListener('mouseover', onOver)
+    list.addEventListener('mouseout', onOut)
+    return () => {
+      list.removeEventListener('mouseover', onOver)
+      list.removeEventListener('mouseout', onOut)
+    }
+  }, [setActive])
+
   // (Re)place markers whenever the result set changes, then frame them.
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
     markersRef.current.forEach((m) => m.remove())
     markersRef.current = []
+    markerElsRef.current.clear()
+    activeIdRef.current = null
 
     if (pins.length === 0) {
       map.easeTo({ center: KINGSTON_CENTER, zoom: 12.5 })
@@ -83,6 +129,8 @@ export default function DirectoryMapImpl({ pins }: { pins: MapPin[] }) {
     const bounds = new maplibregl.LngLatBounds()
     for (const pin of pins) {
       const el = createPinEl(pin)
+      el.addEventListener('mouseenter', () => setActive(pin.id))
+      el.addEventListener('mouseleave', () => setActive(null))
       el.addEventListener('click', (e) => {
         e.preventDefault()
         router.push(`/business/${pin.slug ?? pin.id}`)
@@ -91,6 +139,7 @@ export default function DirectoryMapImpl({ pins }: { pins: MapPin[] }) {
         .setLngLat([pin.lng, pin.lat])
         .addTo(map)
       markersRef.current.push(marker)
+      markerElsRef.current.set(pin.id, el)
       bounds.extend([pin.lng, pin.lat])
     }
 
@@ -99,9 +148,9 @@ export default function DirectoryMapImpl({ pins }: { pins: MapPin[] }) {
     } else {
       map.fitBounds(bounds, { padding: 56, maxZoom: 15, duration: 400 })
     }
-    // pinsKey captures the meaningful change in `pins`; router is stable.
+    // pinsKey captures the meaningful change in `pins`; router/setActive are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pinsKey, router])
+  }, [pinsKey, router, setActive])
 
   return <div ref={containerRef} className="kf-map-canvas" />
 }

@@ -764,6 +764,13 @@ img {
   transition: transform 0.14s ease;
   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.28));
 }
+.kf-pin.is-active {
+  color: var(--accent-strong);
+  z-index: 5;
+}
+.kf-pin.is-active .kf-pin-inner {
+  transform: scale(1.18);
+}
 .kf-pin:focus-visible {
   outline: none;
 }
@@ -771,6 +778,12 @@ img {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/* Card lit by a hovered map pin — mirrors the .card-link:hover affordance. */
+.card.is-hovered {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-md);
 }
 
 /* ============================================================
