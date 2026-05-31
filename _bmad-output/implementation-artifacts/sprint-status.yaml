@@ -79,7 +79,7 @@ development_status:
   3-1-event-entity-venue-cross-link-structured-data: done
   3-2-events-list-with-time-buckets-filters: done
   3-3-calendar-view: done
-  3-4-event-detail-with-map-ics-venue-link: backlog
+  3-4-event-detail-with-map-ics-venue-link: done
   3-5-event-aggregation-seeding: backlog
   epic-3-retrospective: optional
 
