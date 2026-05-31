@@ -11,6 +11,7 @@ import { pointField } from '../fields/pointField'
 import { provenanceField } from '../fields/provenance'
 import { crossLinkCityInvariant } from '../hooks/crossLinkCityInvariant'
 import { reModerateOnEdit } from '../hooks/moderationState'
+import { geocodeMissingLocation } from '../hooks/geocodeBusiness'
 import { revalidateHooks } from '../hooks/revalidate'
 
 // Days of the week for structured opening hours. Used by Open-Now derivation (Story 2.3),
@@ -60,8 +61,9 @@ export const Businesses: CollectionConfig = {
         { field: 'neighbourhood', relationTo: 'neighbourhoods' },
       ]),
     ],
-    // Edits to already-public listings drop back to pending review (FR59 scaffold).
-    beforeChange: [reModerateOnEdit()],
+    // Backfill coordinates from the address when missing (AR24), then drop edits to
+    // already-public listings back to pending review (FR59 scaffold).
+    beforeChange: [geocodeMissingLocation(), reModerateOnEdit()],
     afterChange: directoryRevalidate.afterChange,
     afterDelete: directoryRevalidate.afterDelete,
   },
