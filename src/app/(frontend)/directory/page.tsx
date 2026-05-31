@@ -9,6 +9,14 @@ import { PUBLIC_STATUSES } from '@/fields/statusField'
 import { BusinessCard, type BusinessCardItem } from '@/components/directory/BusinessCard'
 import { DirectoryMap, type MapPin } from '@/components/directory/DirectoryMap'
 import { DirFilters } from '@/components/directory/DirFilters'
+import {
+  DirectoryUiProvider,
+  DirMobileBar,
+  FiltersDrawer,
+  ApplyFiltersButton,
+  DirListPane,
+  DirMapPane,
+} from '@/components/directory/DirectoryUi'
 import { SortSelect } from '@/components/directory/SortSelect'
 import { ActiveChips } from '@/components/directory/ActiveChips'
 import { Icon } from '@/components/ui'
@@ -123,16 +131,17 @@ export default async function DirectoryPage({
   }
 
   return (
-    <div className="kf-route kf-dir">
-      <div className="kf-dir-body">
-        <aside className="kf-dir-filters scroll-y">
-          <div style={{ padding: '22px 22px 40px' }}>
+    <DirectoryUiProvider>
+      <div className="kf-route kf-dir">
+        <DirMobileBar />
+        <div className="kf-dir-body">
+          <FiltersDrawer>
             <DirFilters tree={tree} neighbourhoods={neighbourhoods} />
-          </div>
-        </aside>
+            <ApplyFiltersButton total={total} />
+          </FiltersDrawer>
 
-        <section className="kf-dir-list scroll-y">
-          <div style={{ padding: '18px 22px 40px' }}>
+          <DirListPane>
+            <div style={{ padding: '18px 22px 40px' }}>
             <div
               style={{
                 display: 'flex',
@@ -199,12 +208,13 @@ export default async function DirectoryPage({
               </div>
             )}
           </div>
-        </section>
+          </DirListPane>
 
-        <section className="kf-dir-map">
-          <DirectoryMap pins={pins} />
-        </section>
+          <DirMapPane>
+            <DirectoryMap pins={pins} />
+          </DirMapPane>
+        </div>
       </div>
-    </div>
+    </DirectoryUiProvider>
   )
 }
