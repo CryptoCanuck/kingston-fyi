@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -8,7 +9,11 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Cities } from './collections/Cities'
-import { seedKingston } from './lib/seed/seedKingston'
+import { Neighbourhoods } from './collections/Neighbourhoods'
+import { NewsCategories } from './collections/NewsCategories'
+import { EventCategories } from './collections/EventCategories'
+import { BusinessCategories } from './collections/BusinessCategories'
+import { seed } from './lib/seed'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -20,12 +25,20 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Cities],
+  collections: [
+    Users,
+    Media,
+    Cities,
+    Neighbourhoods,
+    NewsCategories,
+    EventCategories,
+    BusinessCategories,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
-  // Ensure the launch city exists so hostname→city resolution works on a fresh DB.
+  // Ensure the launch city + shared taxonomies exist on a fresh DB.
   onInit: async (payload) => {
-    await seedKingston(payload)
+    await seed(payload)
   },
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
@@ -45,5 +58,12 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    // Two-level business category hierarchy (parent → leaf), editable in the admin.
+    nestedDocsPlugin({
+      collections: ['business-categories'],
+      generateLabel: (_, doc) => String(doc.name ?? ''),
+      generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug ?? ''}`, ''),
+    }),
+  ],
 })

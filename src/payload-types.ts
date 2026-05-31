@@ -70,6 +70,10 @@ export interface Config {
     users: User;
     media: Media;
     cities: City;
+    neighbourhoods: Neighbourhood;
+    'news-categories': NewsCategory;
+    'event-categories': EventCategory;
+    'business-categories': BusinessCategory;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +84,10 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     cities: CitiesSelect<false> | CitiesSelect<true>;
+    neighbourhoods: NeighbourhoodsSelect<false> | NeighbourhoodsSelect<true>;
+    'news-categories': NewsCategoriesSelect<false> | NewsCategoriesSelect<true>;
+    'event-categories': EventCategoriesSelect<false> | EventCategoriesSelect<true>;
+    'business-categories': BusinessCategoriesSelect<false> | BusinessCategoriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -198,6 +206,91 @@ export interface City {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "neighbourhoods".
+ */
+export interface Neighbourhood {
+  id: string;
+  name: string;
+  /**
+   * Leave blank to derive from name.
+   */
+  slug?: string | null;
+  /**
+   * The city this record belongs to. Enforced by cityScoped() access.
+   */
+  city: string | City;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news-categories".
+ */
+export interface NewsCategory {
+  id: string;
+  name: string;
+  /**
+   * Leave blank to derive from name.
+   */
+  slug?: string | null;
+  /**
+   * Editorial tag colour (hex), e.g. #2f6d6a.
+   */
+  color: string;
+  /**
+   * The city this record belongs to. Enforced by cityScoped() access.
+   */
+  city: string | City;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-categories".
+ */
+export interface EventCategory {
+  id: string;
+  name: string;
+  /**
+   * Leave blank to derive from name.
+   */
+  slug?: string | null;
+  /**
+   * The city this record belongs to. Enforced by cityScoped() access.
+   */
+  city: string | City;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "business-categories".
+ */
+export interface BusinessCategory {
+  id: string;
+  name: string;
+  /**
+   * Leave blank to derive from name.
+   */
+  slug?: string | null;
+  /**
+   * The city this record belongs to. Enforced by cityScoped() access.
+   */
+  city: string | City;
+  parent?: (string | null) | BusinessCategory;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | BusinessCategory;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -231,6 +324,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'cities';
         value: string | City;
+      } | null)
+    | ({
+        relationTo: 'neighbourhoods';
+        value: string | Neighbourhood;
+      } | null)
+    | ({
+        relationTo: 'news-categories';
+        value: string | NewsCategory;
+      } | null)
+    | ({
+        relationTo: 'event-categories';
+        value: string | EventCategory;
+      } | null)
+    | ({
+        relationTo: 'business-categories';
+        value: string | BusinessCategory;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -330,6 +439,60 @@ export interface CitiesSelect<T extends boolean = true> {
         id?: T;
       };
   timezone?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "neighbourhoods_select".
+ */
+export interface NeighbourhoodsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  city?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news-categories_select".
+ */
+export interface NewsCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  color?: T;
+  city?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-categories_select".
+ */
+export interface EventCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  city?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "business-categories_select".
+ */
+export interface BusinessCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  city?: T;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

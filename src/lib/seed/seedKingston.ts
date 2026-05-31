@@ -4,9 +4,10 @@ import { DEFAULT_CITY_SLUG } from '../city'
 
 /**
  * Idempotently ensure the launch city (Kingston) exists. Runs on init so a fresh DB is
- * immediately usable for hostname→city resolution. Safe to call repeatedly.
+ * immediately usable for hostname→city resolution. Returns the city id, or null if the
+ * schema isn't ready yet (e.g. during migrate:create before migrations run).
  */
-export const seedKingston = async (payload: Payload): Promise<void> => {
+export const seedKingston = async (payload: Payload): Promise<string | null> => {
   try {
     const existing = await payload.find({
       collection: 'cities',
@@ -15,9 +16,9 @@ export const seedKingston = async (payload: Payload): Promise<void> => {
       depth: 0,
       overrideAccess: true,
     })
-    if (existing.docs.length > 0) return
+    if (existing.docs[0]) return String(existing.docs[0].id)
 
-    await payload.create({
+    const created = await payload.create({
       collection: 'cities',
       overrideAccess: true,
       data: {
@@ -32,9 +33,9 @@ export const seedKingston = async (payload: Payload): Promise<void> => {
       },
     })
     payload.logger.info('Seeded launch city: Kingston')
+    return String(created.id)
   } catch {
-    // Table may not exist yet (e.g. during migrate:create before migrations run).
-    // Seeding will succeed on the next init once the schema is applied.
     payload.logger.warn('seedKingston skipped — cities table not ready yet')
+    return null
   }
 }
