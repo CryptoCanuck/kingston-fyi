@@ -16,6 +16,7 @@ import { BusinessCategories } from './collections/BusinessCategories'
 import { Businesses } from './collections/Businesses'
 import { Reviews } from './collections/Reviews'
 import { Events } from './collections/Events'
+import { Articles } from './collections/Articles'
 import { canRunJobs, jobTasks } from './jobs'
 import { seed } from './lib/seed'
 
@@ -40,6 +41,7 @@ export default buildConfig({
     Businesses,
     Reviews,
     Events,
+    Articles,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

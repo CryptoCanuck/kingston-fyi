@@ -77,6 +77,7 @@ export interface Config {
     businesses: Business;
     reviews: Review;
     events: Event;
+    articles: Article;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -95,6 +96,7 @@ export interface Config {
     businesses: BusinessesSelect<false> | BusinessesSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
+    articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -122,6 +124,7 @@ export interface Config {
       'seed-directory': TaskSeedDirectory;
       'check-staleness': TaskCheckStaleness;
       'dedup-flag': TaskDedupFlag;
+      'aggregate-events': TaskAggregateEvents;
       inline: {
         input: unknown;
         output: unknown;
@@ -511,7 +514,7 @@ export interface Event {
   id: string;
   title: string;
   /**
-   * Leave blank to derive from name.
+   * Leave blank to derive from title.
    */
   slug?: string | null;
   /**
@@ -622,6 +625,100 @@ export interface Event {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles".
+ */
+export interface Article {
+  id: string;
+  title: string;
+  /**
+   * Leave blank to derive from title.
+   */
+  slug?: string | null;
+  /**
+   * Short summary shown under the headline and on cards.
+   */
+  dek?: string | null;
+  /**
+   * Article body.
+   */
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Author / byline.
+   */
+  byline?: string | null;
+  /**
+   * Publish date & time.
+   */
+  publishedAt?: string | null;
+  /**
+   * Estimated read time in minutes (auto-derived from the body when blank).
+   */
+  readTime?: number | null;
+  category?: (string | null) | NewsCategory;
+  /**
+   * Lead image (card + article hero).
+   */
+  heroImage?: (string | null) | Media;
+  /**
+   * Events this article is about.
+   */
+  relatedEvents?: (string | Event)[] | null;
+  /**
+   * Businesses this article mentions.
+   */
+  mentionedBusinesses?: (string | Business)[] | null;
+  /**
+   * Primary source URL (for aggregated drafts).
+   */
+  sourceUrl?: string | null;
+  /**
+   * Data provenance (FR56). Controls what re-seeding may overwrite.
+   */
+  provenance: {
+    /**
+     * Origin of this record’s data.
+     */
+    source: 'seeded' | 'google-places' | 'owner-edited' | 'operator';
+    /**
+     * Field paths owned by the owner. Re-seeding never overwrites these.
+     */
+    lockedFields?: string[] | null;
+    /**
+     * True for ToS-bound sources (e.g. Google Places) re-fetched on cadence.
+     */
+    refreshRequired?: boolean | null;
+    /**
+     * When source data was last refreshed.
+     */
+    lastRefreshedAt?: string | null;
+  };
+  /**
+   * Moderation state. Public pages show approved/published only.
+   */
+  status: 'draft' | 'pending' | 'approved' | 'published';
+  /**
+   * The city this record belongs to. Enforced by cityScoped() access.
+   */
+  city: string | City;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -689,7 +786,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'heartbeat' | 'seed-directory' | 'check-staleness' | 'dedup-flag';
+        taskSlug: 'inline' | 'heartbeat' | 'seed-directory' | 'check-staleness' | 'dedup-flag' | 'aggregate-events';
         taskID: string;
         input?:
           | {
@@ -722,7 +819,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'heartbeat' | 'seed-directory' | 'check-staleness' | 'dedup-flag') | null;
+  taskSlug?: ('inline' | 'heartbeat' | 'seed-directory' | 'check-staleness' | 'dedup-flag' | 'aggregate-events') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -784,6 +881,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'events';
         value: string | Event;
+      } | null)
+    | ({
+        relationTo: 'articles';
+        value: string | Article;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1065,6 +1166,36 @@ export interface EventsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles_select".
+ */
+export interface ArticlesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  dek?: T;
+  body?: T;
+  byline?: T;
+  publishedAt?: T;
+  readTime?: T;
+  category?: T;
+  heroImage?: T;
+  relatedEvents?: T;
+  mentionedBusinesses?: T;
+  sourceUrl?: T;
+  provenance?:
+    | T
+    | {
+        source?: T;
+        lockedFields?: T;
+        refreshRequired?: T;
+        lastRefreshedAt?: T;
+      };
+  status?: T;
+  city?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -1219,6 +1350,22 @@ export interface TaskDedupFlag {
   output: {
     scanned?: number | null;
     flagged?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskAggregate-events".
+ */
+export interface TaskAggregateEvents {
+  input?: unknown;
+  output: {
+    discovered?: number | null;
+    created?: number | null;
+    updated?: number | null;
+    skipped?: number | null;
+    matchedVenues?: number | null;
+    unmatchedVenues?: number | null;
+    configured?: boolean | null;
   };
 }
 /**
