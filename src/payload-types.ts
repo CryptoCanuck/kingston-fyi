@@ -76,6 +76,7 @@ export interface Config {
     'business-categories': BusinessCategory;
     businesses: Business;
     reviews: Review;
+    events: Event;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -93,6 +94,7 @@ export interface Config {
     'business-categories': BusinessCategoriesSelect<false> | BusinessCategoriesSelect<true>;
     businesses: BusinessesSelect<false> | BusinessesSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -503,6 +505,123 @@ export interface Review {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  title: string;
+  /**
+   * Leave blank to derive from name.
+   */
+  slug?: string | null;
+  /**
+   * Short one-line summary shown on cards and in search results.
+   */
+  blurb?: string | null;
+  /**
+   * Longer event details for the detail page.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Start date & time.
+   */
+  startsAt: string;
+  /**
+   * End date & time (optional).
+   */
+  endsAt?: string | null;
+  /**
+   * Display date override (optional).
+   */
+  displayDate?: string | null;
+  /**
+   * Display time override (optional).
+   */
+  displayTime?: string | null;
+  category?: (string | null) | EventCategory;
+  neighbourhood?: (string | null) | Neighbourhood;
+  isFree?: boolean | null;
+  /**
+   * Display price (e.g. "$15", "$10–$20"). Ignored when "Free event" is on.
+   */
+  priceText?: string | null;
+  /**
+   * Event image (card + detail hero).
+   */
+  image?: (string | null) | Media;
+  /**
+   * Host business/venue. Leave empty for events without a directory venue.
+   */
+  venue?: (string | null) | Business;
+  /**
+   * Place name when there is no venue business (e.g. "Springer Market Square").
+   */
+  locationName?: string | null;
+  /**
+   * Own address — only needed when the event has no venue business.
+   */
+  address?: {
+    street?: string | null;
+    locality?: string | null;
+    region?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  };
+  /**
+   * Coordinates as [longitude, latitude] (SRID 4326). Stored as a PostGIS geometry(Point,4326); a GiST index powers radius / map-bounds queries.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  location?: [number, number] | null;
+  /**
+   * Data provenance (FR56). Controls what re-seeding may overwrite.
+   */
+  provenance: {
+    /**
+     * Origin of this record’s data.
+     */
+    source: 'seeded' | 'google-places' | 'owner-edited' | 'operator';
+    /**
+     * Field paths owned by the owner. Re-seeding never overwrites these.
+     */
+    lockedFields?: string[] | null;
+    /**
+     * True for ToS-bound sources (e.g. Google Places) re-fetched on cadence.
+     */
+    refreshRequired?: boolean | null;
+    /**
+     * When source data was last refreshed.
+     */
+    lastRefreshedAt?: string | null;
+  };
+  /**
+   * Moderation state. Public pages show approved/published only.
+   */
+  status: 'draft' | 'pending' | 'approved' | 'published';
+  /**
+   * The city this record belongs to. Enforced by cityScoped() access.
+   */
+  city: string | City;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -661,6 +780,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'reviews';
         value: string | Review;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: string | Event;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -884,6 +1007,49 @@ export interface ReviewsSelect<T extends boolean = true> {
   reviewDate?: T;
   text?: T;
   business?: T;
+  provenance?:
+    | T
+    | {
+        source?: T;
+        lockedFields?: T;
+        refreshRequired?: T;
+        lastRefreshedAt?: T;
+      };
+  status?: T;
+  city?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  blurb?: T;
+  description?: T;
+  startsAt?: T;
+  endsAt?: T;
+  displayDate?: T;
+  displayTime?: T;
+  category?: T;
+  neighbourhood?: T;
+  isFree?: T;
+  priceText?: T;
+  image?: T;
+  venue?: T;
+  locationName?: T;
+  address?:
+    | T
+    | {
+        street?: T;
+        locality?: T;
+        region?: T;
+        postalCode?: T;
+        country?: T;
+      };
+  location?: T;
   provenance?:
     | T
     | {
