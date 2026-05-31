@@ -75,8 +75,8 @@ development_status:
   epic-2-retrospective: optional
 
   # ---------- Epic 3: Events ----------
-  epic-3: backlog
-  3-1-event-entity-venue-cross-link-structured-data: backlog
+  epic-3: in-progress
+  3-1-event-entity-venue-cross-link-structured-data: done
   3-2-events-list-with-time-buckets-filters: backlog
   3-3-calendar-view: backlog
   3-4-event-detail-with-map-ics-venue-link: backlog
