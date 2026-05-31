@@ -47,6 +47,12 @@ const torontoParts = (date: Date): DateParts => {
 /** Whole-day index (days since the epoch) for a set of calendar parts. */
 const dayNumber = (p: DateParts): number => Math.floor(Date.UTC(p.year, p.month - 1, p.day) / 86_400_000)
 
+/** Kingston-local calendar date (year, month 1–12, day) of an instant. */
+export const torontoYmd = (date: Date): { year: number; month: number; day: number } => {
+  const p = torontoParts(date)
+  return { year: p.year, month: p.month, day: p.day }
+}
+
 /**
  * Assign an event to a time bucket relative to `now` (Kingston time). Past events return
  * 'past' so the list can drop them. Buckets are mutually exclusive, resolved by priority:
