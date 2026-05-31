@@ -1,7 +1,9 @@
 import React from 'react'
+import type { Metadata } from 'next'
 import { Newsreader, Source_Sans_3 } from 'next/font/google'
 
 import { Footer, Header } from '@/components/shared'
+import { JsonLd, buildBreadcrumbList, buildOrganization, rootMetadata } from '@/lib/seo'
 
 import '@/styles/globals.css'
 
@@ -22,17 +24,19 @@ const sourceSans = Source_Sans_3({
   variable: '--font-source-sans',
 })
 
-export const metadata = {
-  description: 'Kingston.FYI — hyperlocal news, events, and business directory for Kingston, ON.',
-  title: 'Kingston.FYI',
-}
+// Site-wide metadata defaults (FR6 / NFR1) — title template, description, metadataBase.
+export const metadata: Metadata = rootMetadata()
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
+  // Site-wide structured data (NFR1): Organization + a root BreadcrumbList (Home).
+  const siteJsonLd = [buildOrganization(), buildBreadcrumbList([{ name: 'Home', path: '/' }])]
+
   return (
     <html lang="en" className={`${newsreader.variable} ${sourceSans.variable}`}>
       <body>
+        <JsonLd data={siteJsonLd} />
         <div className="kf-app">
           <Header />
           <main id="main" className="kf-main">
