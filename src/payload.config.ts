@@ -13,6 +13,7 @@ import { Neighbourhoods } from './collections/Neighbourhoods'
 import { NewsCategories } from './collections/NewsCategories'
 import { EventCategories } from './collections/EventCategories'
 import { BusinessCategories } from './collections/BusinessCategories'
+import { Businesses } from './collections/Businesses'
 import { canRunJobs, jobTasks } from './jobs'
 import { seed } from './lib/seed'
 
@@ -34,6 +35,7 @@ export default buildConfig({
     NewsCategories,
     EventCategories,
     BusinessCategories,
+    Businesses,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

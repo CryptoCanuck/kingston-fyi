@@ -3,6 +3,7 @@ import * as migration_20260531_175200_cities_and_media_city from './20260531_175
 import * as migration_20260531_175959_users_roles from './20260531_175959_users_roles';
 import * as migration_20260531_180348_taxonomies from './20260531_180348_taxonomies';
 import * as migration_20260531_183432_jobs_queue from './20260531_183432_jobs_queue';
+import * as migration_20260531_190531_businesses from './20260531_190531_businesses';
 
 export const migrations = [
   {
@@ -28,6 +29,11 @@ export const migrations = [
   {
     up: migration_20260531_183432_jobs_queue.up,
     down: migration_20260531_183432_jobs_queue.down,
-    name: '20260531_183432_jobs_queue'
+    name: '20260531_183432_jobs_queue',
+  },
+  {
+    up: migration_20260531_190531_businesses.up,
+    down: migration_20260531_190531_businesses.down,
+    name: '20260531_190531_businesses'
   },
 ];

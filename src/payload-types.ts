@@ -74,6 +74,7 @@ export interface Config {
     'news-categories': NewsCategory;
     'event-categories': EventCategory;
     'business-categories': BusinessCategory;
+    businesses: Business;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -89,6 +90,7 @@ export interface Config {
     'news-categories': NewsCategoriesSelect<false> | NewsCategoriesSelect<true>;
     'event-categories': EventCategoriesSelect<false> | EventCategoriesSelect<true>;
     'business-categories': BusinessCategoriesSelect<false> | BusinessCategoriesSelect<true>;
+    businesses: BusinessesSelect<false> | BusinessesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -303,6 +305,132 @@ export interface BusinessCategory {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "businesses".
+ */
+export interface Business {
+  id: string;
+  name: string;
+  /**
+   * Leave blank to derive from name.
+   */
+  slug?: string | null;
+  /**
+   * Short one-line summary shown on cards and in search results.
+   */
+  blurb?: string | null;
+  /**
+   * Longer "About" content for the detail page.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * The most-specific (leaf) category. The parent is derived from the category hierarchy.
+   */
+  category?: (string | null) | BusinessCategory;
+  neighbourhood?: (string | null) | Neighbourhood;
+  /**
+   * Relative price level.
+   */
+  priceTier?: ('$' | '$$' | '$$$' | '$$$$') | null;
+  /**
+   * Structured opening intervals (one row per open period). A day with no row is treated as closed. Open-Now is derived from these in America/Toronto.
+   */
+  hours?:
+    | {
+        day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+        /**
+         * 24h HH:MM
+         */
+        opens: string;
+        /**
+         * 24h HH:MM
+         */
+        closes: string;
+        id?: string | null;
+      }[]
+    | null;
+  address?: {
+    street?: string | null;
+    locality?: string | null;
+    region?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  };
+  phone?: string | null;
+  /**
+   * Full URL including https://
+   */
+  website?: string | null;
+  /**
+   * Amenity tags (e.g. "patio", "wheelchair accessible", "wifi").
+   */
+  amenities?: string[] | null;
+  /**
+   * Photo gallery (first image is the lead). Stored via the media adapter.
+   */
+  photos?: (string | Media)[] | null;
+  /**
+   * Sourced display rating (0–5). Never emitted as structured aggregateRating.
+   */
+  rating?: number | null;
+  /**
+   * Sourced review count (display only).
+   */
+  reviewCount?: number | null;
+  /**
+   * Coordinates as [longitude, latitude] (SRID 4326). Stored as a PostGIS geometry(Point,4326); a GiST index powers radius / map-bounds queries.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  location?: [number, number] | null;
+  /**
+   * Data provenance (FR56). Controls what re-seeding may overwrite.
+   */
+  provenance: {
+    /**
+     * Origin of this record’s data.
+     */
+    source: 'seeded' | 'google-places' | 'owner-edited' | 'operator';
+    /**
+     * Field paths owned by the owner. Re-seeding never overwrites these.
+     */
+    lockedFields?: string[] | null;
+    /**
+     * True for ToS-bound sources (e.g. Google Places) re-fetched on cadence.
+     */
+    refreshRequired?: boolean | null;
+    /**
+     * When source data was last refreshed.
+     */
+    lastRefreshedAt?: string | null;
+  };
+  /**
+   * Moderation state. Public pages show approved/published only.
+   */
+  status: 'draft' | 'pending' | 'approved' | 'published';
+  /**
+   * The city this record belongs to. Enforced by cityScoped() access.
+   */
+  city: string | City;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -453,6 +581,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'business-categories';
         value: string | BusinessCategory;
+      } | null)
+    | ({
+        relationTo: 'businesses';
+        value: string | Business;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -606,6 +738,55 @@ export interface BusinessCategoriesSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "businesses_select".
+ */
+export interface BusinessesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  blurb?: T;
+  description?: T;
+  category?: T;
+  neighbourhood?: T;
+  priceTier?: T;
+  hours?:
+    | T
+    | {
+        day?: T;
+        opens?: T;
+        closes?: T;
+        id?: T;
+      };
+  address?:
+    | T
+    | {
+        street?: T;
+        locality?: T;
+        region?: T;
+        postalCode?: T;
+        country?: T;
+      };
+  phone?: T;
+  website?: T;
+  amenities?: T;
+  photos?: T;
+  rating?: T;
+  reviewCount?: T;
+  location?: T;
+  provenance?:
+    | T
+    | {
+        source?: T;
+        lockedFields?: T;
+        refreshRequired?: T;
+        lastRefreshedAt?: T;
+      };
+  status?: T;
+  city?: T;
   updatedAt?: T;
   createdAt?: T;
 }

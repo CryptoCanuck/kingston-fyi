@@ -63,8 +63,8 @@ development_status:
   epic-1-retrospective: optional
 
   # ---------- Epic 2: Business Directory (centerpiece) ----------
-  epic-2: backlog
-  2-1-business-entity-geo-structured-data: backlog
+  epic-2: in-progress
+  2-1-business-entity-geo-structured-data: done
   2-2-business-detail-page: backlog
   2-3-reviews-model-sourced-ratings-open-now: backlog
   2-4-directory-listing-filters-three-pane-chips: backlog
