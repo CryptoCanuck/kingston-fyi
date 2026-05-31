@@ -1,6 +1,8 @@
 import React from 'react'
 import { Newsreader, Source_Sans_3 } from 'next/font/google'
 
+import { Footer, Header } from '@/components/shared'
+
 import '@/styles/globals.css'
 
 // Serif headlines — warm contemporary serif, weight 600, balanced.
@@ -31,7 +33,13 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${newsreader.variable} ${sourceSans.variable}`}>
       <body>
-        <main>{children}</main>
+        <div className="kf-app">
+          <Header />
+          <main id="main" className="kf-main">
+            {children}
+          </main>
+          <Footer />
+        </div>
       </body>
     </html>
   )
