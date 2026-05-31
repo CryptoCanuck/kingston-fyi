@@ -84,11 +84,11 @@ development_status:
   epic-3-retrospective: optional
 
   # ---------- Epic 4: Local News ----------
-  epic-4: backlog
-  4-1-article-entity-cross-links-structured-data: backlog
-  4-2-news-listing: backlog
-  4-3-article-detail-with-related-rail: backlog
-  4-4-primary-source-news-aggregation: backlog
+  epic-4: done
+  4-1-article-entity-cross-links-structured-data: done
+  4-2-news-listing: done
+  4-3-article-detail-with-related-rail: done
+  4-4-primary-source-news-aggregation: done
   epic-4-retrospective: optional
 
   # ---------- Epic 5: Submission, Claiming & Moderation ----------
