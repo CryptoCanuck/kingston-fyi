@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    cities: City;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +79,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    cities: CitiesSelect<false> | CitiesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -149,6 +151,10 @@ export interface User {
 export interface Media {
   id: string;
   alt: string;
+  /**
+   * The city this record belongs to. Enforced by cityScoped() access.
+   */
+  city?: (string | null) | City;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -160,6 +166,31 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cities".
+ */
+export interface City {
+  id: string;
+  name: string;
+  /**
+   * URL-safe identifier, e.g. "kingston".
+   */
+  slug: string;
+  /**
+   * Hostnames that resolve to this city (e.g. kingston.fyi, www.kingston.fyi, localhost). Case-insensitive, port-stripped.
+   */
+  hostnames: {
+    hostname: string;
+    id?: string | null;
+  }[];
+  /**
+   * IANA timezone, e.g. America/Toronto.
+   */
+  timezone: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -192,6 +223,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'cities';
+        value: string | City;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -263,6 +298,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  city?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -274,6 +310,23 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cities_select".
+ */
+export interface CitiesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  hostnames?:
+    | T
+    | {
+        hostname?: T;
+        id?: T;
+      };
+  timezone?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

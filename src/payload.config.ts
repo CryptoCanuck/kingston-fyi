@@ -7,6 +7,8 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Cities } from './collections/Cities'
+import { seedKingston } from './lib/seed/seedKingston'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -18,9 +20,13 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [Users, Media, Cities],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
+  // Ensure the launch city exists so hostname→city resolution works on a fresh DB.
+  onInit: async (payload) => {
+    await seedKingston(payload)
+  },
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
@@ -31,6 +37,9 @@ export default buildConfig({
     idType: 'uuid',
     extensions: ['postgis'],
     migrationDir: path.resolve(dirname, '../migrations'),
+    // Migrations-only (no dev auto-push) so local dev, CI, and prod share one schema
+    // path and every migration file is exercised before deploy.
+    push: false,
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
