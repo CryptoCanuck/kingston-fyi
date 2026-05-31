@@ -786,6 +786,27 @@ img {
   box-shadow: var(--shadow-md);
 }
 
+/* Rendered richText "About" copy on the business detail page. */
+.kf-prose {
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+.kf-prose p {
+  margin: 0 0 14px;
+}
+.kf-prose p:last-child {
+  margin-bottom: 0;
+}
+.kf-prose a {
+  color: var(--accent-strong);
+  text-decoration: underline;
+}
+.kf-prose ul,
+.kf-prose ol {
+  margin: 0 0 14px 1.2em;
+}
+
 /* ============================================================
    GLOBAL SHELL — Header / Footer / Newsletter band
    ============================================================ */
