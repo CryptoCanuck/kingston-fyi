@@ -75,6 +75,7 @@ export interface Config {
     'event-categories': EventCategory;
     'business-categories': BusinessCategory;
     businesses: Business;
+    reviews: Review;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -91,6 +92,7 @@ export interface Config {
     'event-categories': EventCategoriesSelect<false> | EventCategoriesSelect<true>;
     'business-categories': BusinessCategoriesSelect<false> | BusinessCategoriesSelect<true>;
     businesses: BusinessesSelect<false> | BusinessesSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -431,6 +433,55 @@ export interface Business {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: string;
+  /**
+   * Reviewer display name from the source.
+   */
+  author?: string | null;
+  /**
+   * Star rating, 1–5.
+   */
+  rating: number;
+  reviewDate?: string | null;
+  text?: string | null;
+  business: string | Business;
+  /**
+   * Data provenance (FR56). Controls what re-seeding may overwrite.
+   */
+  provenance: {
+    /**
+     * Origin of this record’s data.
+     */
+    source: 'seeded' | 'google-places' | 'owner-edited' | 'operator';
+    /**
+     * Field paths owned by the owner. Re-seeding never overwrites these.
+     */
+    lockedFields?: string[] | null;
+    /**
+     * True for ToS-bound sources (e.g. Google Places) re-fetched on cadence.
+     */
+    refreshRequired?: boolean | null;
+    /**
+     * When source data was last refreshed.
+     */
+    lastRefreshedAt?: string | null;
+  };
+  /**
+   * Moderation state. Public pages show approved/published only.
+   */
+  status: 'draft' | 'pending' | 'approved' | 'published';
+  /**
+   * The city this record belongs to. Enforced by cityScoped() access.
+   */
+  city: string | City;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -585,6 +636,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'businesses';
         value: string | Business;
+      } | null)
+    | ({
+        relationTo: 'reviews';
+        value: string | Review;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -777,6 +832,29 @@ export interface BusinessesSelect<T extends boolean = true> {
   rating?: T;
   reviewCount?: T;
   location?: T;
+  provenance?:
+    | T
+    | {
+        source?: T;
+        lockedFields?: T;
+        refreshRequired?: T;
+        lastRefreshedAt?: T;
+      };
+  status?: T;
+  city?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
+  author?: T;
+  rating?: T;
+  reviewDate?: T;
+  text?: T;
+  business?: T;
   provenance?:
     | T
     | {

@@ -1,6 +1,5 @@
 import { headers as nextHeaders } from 'next/headers'
 import { getPayload, type Payload } from 'payload'
-import configPromise from '@payload-config'
 
 import type { City } from '../payload-types'
 
@@ -50,6 +49,10 @@ export const resolveCityByHost = async (
 
 /** Resolve the active city for the current RSC request via the Host header. */
 export const getActiveCity = async (): Promise<City | null> => {
+  // Lazy-load the Payload config so this module doesn't statically depend on
+  // payload.config (which imports every collection, which imports this module back —
+  // a cycle). The config is only needed at request time, never at module-eval.
+  const configPromise = (await import('@payload-config')).default
   const payload = await getPayload({ config: configPromise })
   const h = await nextHeaders()
   return resolveCityByHost(h.get('host'), payload)
