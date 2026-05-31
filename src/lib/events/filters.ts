@@ -88,3 +88,24 @@ export const matchesEvent = (
 
 export const activeEventFilterCount = (f: EventFilterState): number =>
   (f.preset !== 'any' ? 1 : 0) + f.cats.length + (f.hood ? 1 : 0) + (f.price !== 'all' ? 1 : 0)
+
+export interface EventsViewExtras {
+  view?: 'list' | 'calendar'
+  /** "YYYY-MM" calendar month. */
+  month?: string
+  /** "YYYY-MM-DD" calendar day drill-in. */
+  day?: string
+}
+
+/**
+ * Build an /events href that carries both the filters and the view/month/day state, so the
+ * list↔calendar toggle, month navigation, and the filter bar all preserve each other's state.
+ */
+export const eventsHref = (f: EventFilterState, extras: EventsViewExtras = {}): string => {
+  const q = new URLSearchParams(serializeEventFilters(f))
+  if (extras.view && extras.view !== 'list') q.set('view', extras.view)
+  if (extras.month) q.set('month', extras.month)
+  if (extras.day) q.set('day', extras.day)
+  const s = q.toString()
+  return s ? `/events?${s}` : '/events'
+}

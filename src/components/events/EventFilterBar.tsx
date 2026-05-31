@@ -5,7 +5,7 @@ import React from 'react'
 
 import {
   parseEventFilters,
-  serializeEventFilters,
+  eventsHref,
   type EventFilterState,
   type PriceFilter,
 } from '@/lib/events/filters'
@@ -33,8 +33,11 @@ export const EventFilterBar = ({ categories, neighbourhoods }: EventFilterBarPro
   const filters = parseEventFilters(Object.fromEntries(searchParams.entries()))
 
   const go = (next: EventFilterState) => {
-    const qs = serializeEventFilters(next)
-    router.replace(qs ? `/events?${qs}` : '/events', { scroll: false })
+    // Preserve the view + month so changing a filter doesn't kick you out of the calendar
+    // (the day drill-in resets, since the filtered set may no longer include it).
+    const view = searchParams.get('view') === 'calendar' ? 'calendar' : 'list'
+    const month = searchParams.get('month') ?? undefined
+    router.replace(eventsHref(next, { view, month }), { scroll: false })
   }
 
   const toggleCat = (slug: string) => {

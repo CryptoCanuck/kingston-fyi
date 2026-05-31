@@ -925,6 +925,106 @@ img {
   }
 }
 
+/* ---- Calendar (Story 3.3) ---- */
+.kf-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.kf-cal-dow {
+  text-align: center;
+  padding: 10px 0;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--line);
+}
+.kf-calcell {
+  min-height: 116px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 8px;
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.kf-calcell:nth-child(7n) {
+  border-right: none;
+}
+.kf-calcell-empty {
+  background: var(--limestone);
+}
+.kf-calcell.is-selected {
+  background: var(--accent-tint);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.kf-cal-daynum {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-faint);
+  width: max-content;
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+.kf-cal-daynum[data-has-events='true'] {
+  color: var(--slate-900);
+}
+.kf-cal-daynum:hover {
+  background: var(--limestone-2);
+}
+.kf-cal-chip {
+  display: block;
+  background: var(--accent-tint);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 4px 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--slate-900);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kf-cal-chip:hover {
+  background: var(--accent-soft);
+}
+.kf-cal-more {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+/* Count dot is the mobile affordance only; hidden on desktop where chips show. */
+.kf-cal-dot {
+  display: none;
+}
+@media (max-width: 560px) {
+  .kf-calcell {
+    min-height: 56px;
+    padding: 5px;
+    align-items: center;
+    gap: 3px;
+  }
+  .kf-cal-events {
+    display: none;
+  }
+  .kf-cal-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+  }
+}
+
 /* ============================================================
    GLOBAL SHELL — Header / Footer / Newsletter band
    ============================================================ */
