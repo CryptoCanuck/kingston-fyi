@@ -7,6 +7,7 @@ import config from '@/payload.config'
 import { getActiveCity } from '@/lib/city'
 import { PUBLIC_STATUSES } from '@/fields/statusField'
 import { BusinessCard, type BusinessCardItem } from '@/components/directory/BusinessCard'
+import { DirectoryMap, type MapPin } from '@/components/directory/DirectoryMap'
 import { DirFilters } from '@/components/directory/DirFilters'
 import { SortSelect } from '@/components/directory/SortSelect'
 import { ActiveChips } from '@/components/directory/ActiveChips'
@@ -95,6 +96,22 @@ export default async function DirectoryPage({
   const now = new Date()
   const filtered = all.filter((b) => matchesBusiness(b, filters, now))
   const sorted = sortBusinesses(filtered, filters.sort)
+
+  // Map pins for the whole filtered result set (Payload returns `point` as [lng, lat]); the
+  // list paginates but the map frames every match. Skip rows without a geocoded location.
+  const pins: MapPin[] = filtered.flatMap((b) => {
+    const loc = (b as { location?: unknown }).location
+    if (
+      Array.isArray(loc) &&
+      loc.length === 2 &&
+      typeof loc[0] === 'number' &&
+      typeof loc[1] === 'number'
+    ) {
+      const slug = (b as { slug?: string | null }).slug ?? null
+      return [{ id: b.id, slug, name: b.name, lng: loc[0], lat: loc[1] }]
+    }
+    return []
+  })
   const total = sorted.length
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const page = Math.min(filters.page, pageCount)
@@ -185,23 +202,7 @@ export default async function DirectoryPage({
         </section>
 
         <section className="kf-dir-map">
-          {/* Interactive MapLibre map lands in Story 2.6; this pane reserves its layout space
-              (NFR2 — no CLS) until then. */}
-          <div
-            style={{
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              background: 'var(--limestone)',
-              color: 'var(--ink-faint)',
-            }}
-          >
-            <Icon name="map" size={30} stroke={1.4} />
-            <span style={{ fontSize: 14, fontWeight: 600 }}>Map view coming soon</span>
-          </div>
+          <DirectoryMap pins={pins} />
         </section>
       </div>
     </div>

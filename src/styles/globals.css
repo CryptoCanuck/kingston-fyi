@@ -732,6 +732,46 @@ img {
   position: relative;
   height: 100%;
 }
+.kf-map-canvas {
+  position: absolute;
+  inset: 0;
+}
+.kf-dir-map-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--limestone);
+  color: var(--ink-faint);
+}
+
+/* MapLibre teardrop pins — colour via currentColor so state lives in CSS. MapLibre owns the
+   marker element's transform (positioning), so hover scaling targets the inner span. */
+.kf-pin {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+  color: var(--slate-800);
+}
+.kf-pin-inner {
+  display: block;
+  transform-origin: bottom center;
+  transition: transform 0.14s ease;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.28));
+}
+.kf-pin:focus-visible {
+  outline: none;
+}
+.kf-pin:focus-visible .kf-pin-inner {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
 
 /* ============================================================
    GLOBAL SHELL — Header / Footer / Newsletter band
