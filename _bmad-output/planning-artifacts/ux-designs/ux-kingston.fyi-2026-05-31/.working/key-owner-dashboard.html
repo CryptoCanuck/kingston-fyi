@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kingston.FYI — Owner dashboard (key screen)</title>
+<style>
+/* Governing spine sections:
+   EXPERIENCE.md → IA (/dashboard), Component Patterns (ListingManageCard), State Patterns
+   (Listing edit states / dashboard list states), Key Flows / Flow 2 (re-moderated edit).
+   DESIGN.md → DashboardNav, ListingManageCard, InReviewPill, StatusBadge.
+   Fonts: Newsreader/Source Sans 3 in real build; Georgia/system-ui here (offline). */
+:root{
+  --paper:#faf7f0;--limestone:#f3ecdf;--limestone-2:#ece3d2;--card:#fff;
+  --slate-900:#16252f;--slate-800:#1d3040;--slate-700:#274255;
+  --ink:#1b2a33;--ink-soft:#4d6373;--ink-faint:#7d8f9b;
+  --accent:#c4801f;--accent-strong:#a86714;--accent-soft:#f6e7cb;--accent-tint:#fbf3e2;
+  --line:#e3d9c6;--line-strong:#d4c7ad;
+  --serif:Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,sans-serif;
+  --r:9px;--r-lg:14px;--r-pill:999px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#cfc4ad;font-family:var(--sans);color:var(--ink);line-height:1.55;padding:28px}
+.caption{max-width:1000px;margin:0 auto 6px;color:#3a3527;font-size:13px;text-align:center}
+.frame{max-width:1000px;margin:0 auto;background:var(--paper);border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line-strong);box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.chrome{background:var(--slate-900);padding:10px 14px;display:flex;align-items:center;gap:8px}
+.dot{width:11px;height:11px;border-radius:50%;background:#3a586c}
+.url{margin-left:10px;font-size:12px;color:#9fb4c1;background:#0f1b22;padding:4px 12px;border-radius:var(--r-pill)}
+.head{background:var(--slate-900);color:#fff;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--accent)}
+.wordmark{font-family:var(--serif);font-weight:600;font-size:20px;letter-spacing:-.01em}
+.acct{font-size:13px;color:#c4d2da}
+.layout{display:flex;min-height:520px}
+.side{width:230px;background:var(--limestone);border-right:1px solid var(--line);padding:22px 16px}
+.side .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.navitem{display:block;padding:11px 13px;border-radius:var(--r);font-size:14px;font-weight:600;color:var(--ink-soft);margin-top:6px;text-decoration:none}
+.navitem.on{background:var(--card);color:var(--accent-strong);border:1px solid var(--line)}
+.navitem.dim{color:var(--ink-faint);font-weight:500}
+.tag-soon{font-size:10px;background:var(--limestone-2);color:var(--ink-faint);padding:2px 7px;border-radius:var(--r-pill);margin-left:6px}
+.main{flex:1;padding:26px 28px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-strong)}
+h1{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:.2em 0 .5em;font-size:26px}
+.card{display:flex;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin-bottom:16px}
+.thumb{width:104px;height:104px;border-radius:var(--r);background:linear-gradient(135deg,#e3d4b4,#c9b890)}
+.cb{flex:1}
+.bizname{font-family:var(--serif);font-size:19px;font-weight:600;margin:0}
+.sub{font-size:13px;color:var(--ink-faint);margin:3px 0 10px}
+.statusrow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.pill{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 11px;border-radius:var(--r-pill)}
+.pill-live{background:#e6efe6;color:#2f6d4a}
+.pill-review{background:var(--accent-tint);color:var(--accent-strong);border:1px solid var(--accent-soft)}
+.pill-status{background:var(--accent-tint);color:var(--accent-strong)}
+.acts{display:flex;gap:10px}
+.btn{background:var(--accent);color:#fff;border:none;padding:10px 18px;border-radius:var(--r);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+.btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line-strong)}
+.note{font-size:13px;color:var(--ink-soft);background:var(--limestone);border-radius:var(--r);padding:9px 12px;margin-top:10px}
+</style>
+</head>
+<body>
+<p class="caption">Owner dashboard — My Listings: one published listing and one with a re-moderated edit pending (Flow 2 ★). Phase-2 nav items shown dimmed.</p>
+<div class="frame">
+  <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">kingston.fyi/dashboard</span></div>
+  <div class="head"><span class="wordmark">Kingston.FYI</span><span class="acct">Dale · dale@skeletonparkroasters.ca ▾</span></div>
+  <div class="layout">
+    <aside class="side">
+      <span class="eyebrow">My account</span>
+      <a class="navitem on" href="#">My Listings</a>
+      <a class="navitem dim" href="#">Analytics <span class="tag-soon">soon</span></a>
+      <a class="navitem dim" href="#">Subscription <span class="tag-soon">soon</span></a>
+      <a class="navitem" href="#" style="margin-top:18px;color:var(--ink-faint)">Sign out</a>
+    </aside>
+    <main class="main">
+      <span class="eyebrow">Owner dashboard</span>
+      <h1>My Listings</h1>
+
+      <!-- Published listing -->
+      <div class="card">
+        <div class="thumb" aria-hidden="true"></div>
+        <div class="cb">
+          <p class="bizname">Skeleton Park Roasters</p>
+          <p class="sub">Coffee Shop · Williamsville · $$</p>
+          <div class="statusrow"><span class="pill pill-live">● Live</span><span style="font-size:13px;color:var(--ink-faint)">Last updated 12 May</span></div>
+          <div class="acts">
+            <button class="btn">Edit</button>
+            <button class="btn btn-ghost">View public page</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Listing with a pending re-moderated edit (Flow 2 climax state) -->
+      <div class="card" style="border-color:var(--accent-soft)">
+        <div class="thumb" aria-hidden="true"></div>
+        <div class="cb">
+          <p class="bizname">The Sleepless Goat</p>
+          <p class="sub">Café · Downtown · $$</p>
+          <div class="statusrow">
+            <span class="pill pill-live">● Live</span>
+            <span class="pill pill-review" role="status">⟳ In review</span>
+          </div>
+          <div class="acts">
+            <button class="btn btn-ghost">Edit</button>
+            <button class="btn btn-ghost">View public page</button>
+          </div>
+          <p class="note">Your changes to <strong>hours</strong> and <strong>2 photos</strong> are in review. Your live listing stays as-is until we approve — usually within 2 business days.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+</body>
+</html>

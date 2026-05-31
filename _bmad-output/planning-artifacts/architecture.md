@@ -167,6 +167,32 @@ immediately pin Next.js ≥16.2.6 / Payload ≥3.73.0 and enable PostGIS.
   Payload's email adapter **and** newsletter via Resend Broadcasts — **CASL-compliant** (explicit
   consent + unsubscribe).
 
+### Data Acquisition & Enrichment (added 2026-05-31)
+
+The cold-start seeding (FR29) + news aggregation (FR12) pipelines depend on three external
+capabilities not in the original draft; decided with Chris on 2026-05-31:
+
+- **Directory listing source → Google Places API (official).** Used as a **discovery + refresh**
+  source, *not* a retained standalone database (Places ToS prohibits that). Store `place_id`
+  indefinitely; Google-attributed Place fields are written with **provenance (FR56) = `google-places`
+  and marked refresh-required** (re-fetched on the allowed cadence, never frozen as our own data).
+  Places returns geometry, so Places-sourced listings need no separate geocoding. A listing's
+  Google-sourced fields are *superseded and become ours* once an owner claims-and-edits (FR31/56) or
+  the field is enriched from another source. Display/attribution rules respected on any live-rendered
+  Places field. **No Google Maps scraping** (ToS + civic-trust posture — consistent with the rejected
+  scrape-competitor-articles decision).
+- **LLM inference → self-hosted / open-weights model** behind a swappable `lib/inference` client
+  (job-level abstraction; provider replaceable without touching pipeline logic). Roles: normalize
+  messy source data, categorize into the two-level business taxonomy, dedup-match (FR58), generate
+  listing blurbs, and summarize primary-source press releases into operator-reviewed news **drafts**
+  (FR12 — drafts only, never auto-published; competitors never republished). Tradeoff is **ops, not
+  per-token cost**: requires an inference host (small GPU box or CPU-bound small model via
+  vLLM/Ollama) reachable from the Railway Jobs Queue. All LLM output enters as **drafts/pending →
+  moderation**, never bypassing the gate (NFR4/NFR5).
+- **Geocoding → MapTiler Geocoding API** (already the chosen tile vendor; friendlier storage terms
+  than Google, results retainable). Used for the non-Places paths — user submissions, manual entries,
+  and open-data records lacking coordinates. No Google dependency for geo.
+
 ### Frontend Architecture
 - **State →** URL search params as canonical filter/search state + minimal local state; no global
   store at MVP.
@@ -331,7 +357,9 @@ kingston-fyi/
 - **Inbound content:** Jobs Queue (cron) → press-release/feed ingestion + directory seeding → Payload
   collections (drafts/pending) → moderation → publish → `revalidateTag`.
 - **External services:** R2 (media), Resend (email/newsletter), MapLibre tiles (MapTiler/Protomaps),
-  Turnstile (CAPTCHA), AdSense, Sentry, analytics.
+  **Google Places API** (directory discovery/refresh — ToS-bounded, see Data Acquisition),
+  **MapTiler Geocoding** (non-Places address→coords), **self-hosted LLM inference** (open-weights,
+  seeding/aggregation enrichment), Turnstile (CAPTCHA), AdSense, Sentry, analytics.
 - **Read flow:** RSC pages → Local API (cityScoped + published) → cached + tag-revalidated → JSON-LD +
   metadata via `lib/seo`.
 
